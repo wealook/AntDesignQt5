@@ -1,0 +1,9 @@
+#pragma once
+
+namespace wl{
+
+
+enum class IconSvg{
+@ICON_SVG_LIST@
+};
+}
