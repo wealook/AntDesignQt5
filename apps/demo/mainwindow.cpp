@@ -23,6 +23,7 @@
 #include "DemoGridWidget.h"
 #include "DemoButtonWidget.h"
 #include "DemoIconWidget.h"
+#include "DemoTypography.h"
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow) {
     ui->setupUi(this);
@@ -31,6 +32,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     this->widgetsMap["card"] = new DemoCardWidget();
     this->widgetsMap["grid"] = new DemoGridWidget();
     this->widgetsMap["button"] = new DemoButtonWidget();
+    this->widgetsMap["typography"] = new DemoTypography();
 //    this->widgetsMap["icon"] = new DemoIconWidget();
 
     baseLayout_ = new wl::Layout(this);
@@ -51,7 +53,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
         tmpItems.children.emplace_back("Button按钮", "button");
         tmpItems.children.emplace_back("FloatButton悬浮按钮", "general-button");
         tmpItems.children.emplace_back("Icon图标", "icon");
-        tmpItems.children.emplace_back("Typography排版", "general-button");
+        tmpItems.children.emplace_back("Typography排版", "typography");
         menu->menuItems.push_back(tmpItems);
     }
     {

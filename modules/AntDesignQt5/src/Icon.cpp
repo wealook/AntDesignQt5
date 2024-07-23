@@ -39,25 +39,25 @@ namespace wl {
     }
 
     Icon::Icon(const QString &label, const QColor &color, QWidget *parent) : QLabel(parent) {
-        LOG_INFO("t0")
+      //  LOG_INFO("t0")
         originPixmap_.load(QString("./icon-svg/" + label + ".svg"));
-        LOG_INFO("t1")
+      //  LOG_INFO("t1")
         QPainter qp(&originPixmap_);
-        LOG_INFO("t2")
+      //  LOG_INFO("t2")
 
         qp.setCompositionMode(QPainter::CompositionMode_SourceIn);
-        LOG_INFO("t3")
+      //  LOG_INFO("t3")
 
         qp.fillRect(originPixmap_.rect(), color);
-        LOG_INFO("t4")
+      //  LOG_INFO("t4")
 
         qp.end();
-        LOG_INFO("t5")
+     //   LOG_INFO("t5")
 
         if (originPixmap_.rect().width() > 200) {
             originPixmap_ = originPixmap_.scaled(200, 200, Qt::KeepAspectRatio, Qt::SmoothTransformation);
         }
-        LOG_INFO("t6")
+       // LOG_INFO("t6")
         this->setStyleSheet("border:none");
         this->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
         this->setMargin(0);

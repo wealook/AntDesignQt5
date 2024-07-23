@@ -157,6 +157,10 @@ namespace wl {
         std::string colorDisabledText = "rgb(217,217,217)";
         std::string colorDisabledBorder = "rgb(217,217,217)";
 
+        std::string colorBgTextMark = "rgb(255, 229, 143 )";    //	第三级文本色一般用于描述性文本，例如表单的中的补充说明文本、列表的描述性文本等场景。
+        std::string colorBgTextCode = "rgba(150, 150, 150 ,0.1)";    //	第三级文本色一般用于描述性文本，例如表单的中的补充说明文本、列表的描述性文本等场景。
+        std::string colorBgTextKeyword = "rgba(150, 150, 150 ,0.1)";    //	第三级文本色一般用于描述性文本，例如表单的中的补充说明文本、列表的描述性文本等场景。
+
 
         //AliasToken                 继承所有 SeedToken 和 MapToken 的属性
         std::string boxShadow = "0 6px 16px 0 rgba(0, 0, 0, 0.08), 0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 9px 28px 8px rgba(0, 0, 0, 0.05)";//	控制元素阴影样式。

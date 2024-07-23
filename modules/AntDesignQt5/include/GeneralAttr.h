@@ -15,6 +15,13 @@ namespace wl {
         circle,
         round
     };
+    enum class GeneralAttrColorType {
+        none,
+        secondary,
+        success,
+        warning,
+        danger,
+    };
 
     class GeneralAttr {
     public:

@@ -3,7 +3,7 @@ project(AntDesignQt5)
 include(cmake/predefines.cmake)
 
 option(BUILD_APP "" ON)
-set(Qt5_DIR "D:/Qt/Qt5.14.2/5.14.2/msvc2017_64/lib/cmake/Qt5")
+#set(Qt5_DIR "D:/Qt/Qt5.14.2/5.14.2/msvc2017_64/lib/cmake/Qt5")
 if (MSVC)
     set(CMAKE_CXX_FLAGS "/utf-8")
     set(CMAKE_C_FLAGS "/utf-8")
