@@ -161,7 +161,6 @@ namespace wl {
         if (text.length() == 0) {
             label_->setFixedSize(0, 0);
             ly->setSpacing(0);
-
         } else {
             ly->setSpacing(4);
         }

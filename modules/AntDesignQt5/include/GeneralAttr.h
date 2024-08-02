@@ -22,9 +22,14 @@ namespace wl {
         warning,
         danger,
     };
+    enum class GeneralAttrTypeDirection {
+        horizontal,
+        vertical,
+    };
 
     class GeneralAttr {
     public:
+
         GeneralAttrSize size = GeneralAttrSize::middle;
         GeneralAttrShape shape = GeneralAttrShape::none;
     };

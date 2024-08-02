@@ -1,5 +1,7 @@
 #pragma  once
 
+#include <utility>
+
 #include "GeneralAttr.h"
 
 namespace wl {
@@ -15,10 +17,18 @@ namespace wl {
 
 
     public:
+        InputAttr() = default;
+
+        explicit InputAttr(QString textBefore, const QString &textAfter) :
+                addonBefore(std::move(textBefore)), addonAfter(textAfter) {
+        }
+
         GeneralAttrSize size = GeneralAttrSize::middle;
-        std::wstring textBefore;
-        std::wstring textAfter;
+        QString addonBefore;
+        QString addonAfter;
         InputAttrStatus status = InputAttrStatus::none;
         bool disabled = false;
+        QWidget *prefix = nullptr;
+        QWidget *suffix = nullptr;
     };
 }

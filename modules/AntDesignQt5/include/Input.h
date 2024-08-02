@@ -13,6 +13,8 @@ namespace wl {
 
         explicit Input(QWidget *parent = nullptr);
 
+        explicit Input(const InputAttr &inputAttr, QWidget *parent = nullptr);
+
         const InputAttr &getAttr() const;
 
         void setAttr(const InputAttr &inputAttr);

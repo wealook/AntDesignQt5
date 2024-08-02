@@ -24,6 +24,7 @@
 #include "DemoButtonWidget.h"
 #include "DemoIconWidget.h"
 #include "DemoTypography.h"
+#include "DemoInputWidget.h"
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow) {
     ui->setupUi(this);
@@ -33,6 +34,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     this->widgetsMap["grid"] = new DemoGridWidget();
     this->widgetsMap["button"] = new DemoButtonWidget();
     this->widgetsMap["typography"] = new DemoTypography();
+    this->widgetsMap["input"] = new DemoInputWidget();
 //    this->widgetsMap["icon"] = new DemoIconWidget();
 
     baseLayout_ = new wl::Layout(this);
@@ -63,6 +65,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
         tmpItems.children.emplace_back("Grid栅格", "grid");
         tmpItems.children.emplace_back("Layout布局", "general-button");
         tmpItems.children.emplace_back("Space间距", "general-button");
+        menu->menuItems.push_back(tmpItems);
+
+    }
+    {
+        auto tmpItems = wl::MenuItem("数据录入", "data-input");
+        tmpItems.children.emplace_back("Input输入框", "input");
         menu->menuItems.push_back(tmpItems);
 
     }
