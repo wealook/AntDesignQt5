@@ -12,6 +12,11 @@ namespace wl {
         warning,
         error
     };
+    enum class InputAttrVariant {
+        outlined,
+        borderless,
+        filled
+    };
 
     class InputAttr {
 
@@ -19,16 +24,20 @@ namespace wl {
     public:
         InputAttr() = default;
 
-        explicit InputAttr(QString textBefore, const QString &textAfter) :
-                addonBefore(std::move(textBefore)), addonAfter(textAfter) {
+        explicit InputAttr(QWidget *textBefore, QWidget *textAfter = nullptr) :
+                addonBefore(textBefore), addonAfter(textAfter) {
         }
 
         GeneralAttrSize size = GeneralAttrSize::middle;
-        QString addonBefore;
-        QString addonAfter;
+        QWidget *addonBefore;
+        QWidget *addonAfter;
+
         InputAttrStatus status = InputAttrStatus::none;
         bool disabled = false;
         QWidget *prefix = nullptr;
         QWidget *suffix = nullptr;
+
+        QString placeholder;
+        InputAttrVariant variant = InputAttrVariant::outlined;
     };
 }

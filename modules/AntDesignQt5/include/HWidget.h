@@ -9,20 +9,23 @@ namespace wl {
  *  自带水平布局的widget
  */
     class HWidget : public QWidget, public AWidget {
-
+    Q_OBJECT
     public:
-        explicit HWidget(QWidget *parent = nullptr);
+        explicit HWidget(QWidget *parent = nullptr, bool spacer = false);
 
         void addWidget(QWidget *wid);
 
         void enterEvent(QEvent *event) override;
 
         void leaveEvent(QEvent *event) override;
+        void mousePressEvent(QMouseEvent *event) override;
+        void mouseReleaseEvent(QMouseEvent *event) override;
 
 
         std::function<void(QEvent *event)> enterEventCB = nullptr;
         std::function<void(QEvent *event)> leaveEventCB = nullptr;
-
+    signals:
+        void clicked();
     };
 }
 

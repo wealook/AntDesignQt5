@@ -1,6 +1,8 @@
 #pragma once
 
 #include <optional>
+#include <utility>
+#include "QString"
 
 namespace wl {
 
@@ -32,6 +34,20 @@ namespace wl {
 
         GeneralAttrSize size = GeneralAttrSize::middle;
         GeneralAttrShape shape = GeneralAttrShape::none;
+    };
+
+
+    class GeneralAttrOption {
+    public:
+
+        explicit GeneralAttrOption(QString label, QString value, bool disabled = false) :
+                label(std::move(label)), value(std::move(value)), disabled(disabled) {
+
+        }
+
+        QString label;
+        QString value;
+        bool disabled = false;
     };
 
 

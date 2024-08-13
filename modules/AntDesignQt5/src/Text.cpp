@@ -63,4 +63,9 @@ namespace wl {
     Text::Text(const QString &text, const TextAttr &textAttr, QWidget *parent) : Text(text, parent) {
         this->setAttr(textAttr);
     }
+
+    void Text::mousePressEvent(QMouseEvent *event) {
+        QWidget::mousePressEvent(event);
+        emit clicked();
+    }
 }

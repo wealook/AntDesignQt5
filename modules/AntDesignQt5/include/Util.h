@@ -40,8 +40,12 @@ namespace wl {
                 return QColor(v1, v2, v3);
             } else if (std::regex_match(cssColor, m, std::regex("rgb\\( *([0-9]{1,3}) *, *([0-9]{1,3}) *, *([0-9]{1,3}) *\\)"))) {
                 return QColor(std::stoi(m[1].str()), std::stoi(m[2].str()), std::stoi(m[3].str()));
-            } else if (std::regex_match(cssColor, m, std::regex("rgba\\( *([0-9]{1,3}) *, *([0-9]{1,3}) *, *([0-9]{1,3}) *, *([0-9]{1,3}) *\\)"))) {
-                return QColor(std::stoi(m[1].str()), std::stoi(m[2].str()), std::stoi(m[3].str()), std::stoi(m[4].str()));
+            } else if (std::regex_match(cssColor, m, std::regex("rgba\\( *([0-9]{1,3}) *, *([0-9]{1,3}) *, *([0-9]{1,3}) *, *([0-9.]{1,4}) *\\)"))) {
+                auto a = std::stof(m[4].str());
+                if (a < 1) {
+                    a *= 255;
+                }
+                return QColor(std::stoi(m[1].str()), std::stoi(m[2].str()), std::stoi(m[3].str()), (int) a);
             }
             return Qt::black;
         }

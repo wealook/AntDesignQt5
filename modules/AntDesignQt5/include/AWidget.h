@@ -57,9 +57,8 @@ namespace wl {
         QString getJoinStyles() {
             std::stringstream ss;
             for (const auto &group: this->styles) {
-                // TODO 有些不需要大括号的情况
                 if (!group.first.empty()) {
-                    if (group.first[0] != ':') {
+                    if (group.first[0] != ':' && (group.first == "hover" || group.first == "!hover")) {
                         ss << ":";
                     }
                 }

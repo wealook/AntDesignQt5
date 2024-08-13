@@ -22,5 +22,7 @@ namespace wl {
         bool strong = false;
         bool italic = false;
         bool link = false;
+
+        int fontSize = 16;
     };
 }

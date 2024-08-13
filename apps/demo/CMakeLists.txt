@@ -9,19 +9,38 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(Qt5 COMPONENTS Core Gui Widgets Xml Svg REQUIRED)
+
+if (WINDOWS)
+    include(../../cmake/generate_product_version.cmake)
+    generate_product_version(
+            VersionFilesOutputVariable
+            NAME "WL software"
+            ICON ${CMAKE_CURRENT_LIST_DIR}/logo.ico
+            VERSION_MAJOR ${VERSION_MAJOR}
+            VERSION_MINOR ${VERSION_MINOR}
+            VERSION_PATCH ${VERSION_PATCH}
+            VERSION_REVISION ${VERSION_REVISION}
+            COMPANY_NAME "WL"
+            # COMPANY_COPYRIGHT "Copyright ${COMPILE_YEAR} GCTG"
+            FILE_DESCRIPTION "WL software"
+    )
+endif ()
+
 include_directories(
         ../../modules/CommonUtils
         ../../modules/AntDesignQt5/include
+
         ../../3rdparty/magic_enum
         ${CMAKE_BINARY_DIR}/modules/AntDesignQt5
 )
 file(GLOB_RECURSE DEMO_HEADER_FILES "Demo*.h*")
 file(GLOB_RECURSE DEMO_SOURCE_FILES "Demo*.c*")
-add_executable(${PROJECT_NAME}
+add_executable(${PROJECT_NAME} ${VersionFilesOutputVariable}
         main.cpp
         mainwindow.ui
         mainwindow.h
         mainwindow.cpp
+        ../../modules/AntDesignQt5/resource.qrc
         ${DEMO_HEADER_FILES}
         ${DEMO_SOURCE_FILES}
 )

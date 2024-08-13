@@ -12,7 +12,6 @@ namespace wl {
         }
 
 
-
 // SeedToken
         double borderRadius = 6;//	基础组件的圆角大小，例如按钮、输入框、卡片等
         std::string colorBgBase = "#fff";//	用于派生背景色梯度的基础变量，v5 中我们添加了一层背景色的派生算法可以产出梯度明确的背景色的梯度变量。但请不要在代码中直接使用该 Seed Token ！
@@ -245,7 +244,7 @@ namespace wl {
 
 
 
-        std::string  verticalScrollBar =R"(
+        std::string verticalScrollBar = R"(
             QScrollBar {
                     width: 8px;
                     background-color: #f0f0f0;
@@ -263,7 +262,7 @@ namespace wl {
             QScrollBar::corner {
                     background: transparent;
             }
-        )" ;
+        )";
     protected:
         ThemeConfig() {
 
@@ -286,8 +285,8 @@ namespace wl {
         std::string errorActiveShadow = "0 0 0 2px rgba(255, 38, 5, 0.06)";//错误状态时激活态阴影
         std::string hoverBg = "#ffffff";//输入框hover状态时背景颜色
         std::string hoverBorderColor = "#4096ff";//悬浮态边框色
-        int inputFontSize = 22; //字体大小
-        int inputFontSizeLG = 16;//大号字体大小
+        int inputFontSize = 16; //字体大小
+        int inputFontSizeLG = 22;//大号字体大小
         int inputFontSizeSM = 14;//小号字体大小
         int paddingBlock = 4;//输入框纵向内边距
         int paddingBlockLG = 7;//大号输入框纵向内边距
@@ -296,6 +295,10 @@ namespace wl {
         int paddingInlineLG = 11;//大号输入框横向内边距
         int paddingInlineSM = 7;//小号输入框横向内边距
         std::string warningActiveShadow = "0 0 0 2px rgba(255, 215, 5, 0.1)";//警告状态时激活态阴影
+
+        std::string colorInputFilledBG = "rgb(245,245,245)";//输入框 filled 背景色
+        std::string colorInputFilledHoverBG = "rgb(240,240,240)";//输入框 filled  hover 背景色
+
     private:
         InputConfig() {
         }

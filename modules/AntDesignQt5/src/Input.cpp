@@ -10,6 +10,7 @@
 #include "QLabel"
 #include "QPushButton"
 #include "HWidget.h"
+#include "WLQLineEdit.h"
 
 namespace wl {
 
@@ -27,12 +28,24 @@ namespace wl {
         layout->setSpacing(0);
 
         auto themeConfig = InputConfig::Instance();
-        LOG_INFO("---------------------------------------")
+//        LOG_INFO("---------------------------------------")
 
-        auto labelAWidget = AWidget();
+        auto *beforeWidget = new HWidget(this);
+        auto *afterWidget = new HWidget(this);
+
         auto inputAWidget = AWidget();
         auto buttonAWidget = AWidget();
-        auto *editWidget = new HWidget();
+        editWidget = new HWidget();
+
+        beforeWidget->setStyleQss("border-radius", "none");
+        afterWidget->setStyleQss("border-radius", "none");
+        inputAWidget.setStyleQss("border-radius", "none");
+        buttonAWidget.setStyleQss("border-radius", "none");
+        editWidget->setStyleQss("border-radius", "none");
+        auto *edit = new WLQLineEdit(this);
+
+
+        connect(edit, SIGNAL(focusChange(QFocusEvent * )), this, SLOT(editFocusChange(QFocusEvent * )));
         QFont font;
 
         this->attr = inputAttr;
@@ -70,54 +83,115 @@ namespace wl {
 
         this->setStyleQss("height", std::to_string(sizeHeight));
         this->setFixedHeight(sizeHeight);
-        std::stringstream buttonStyle;
-        if (attr.status == InputAttrStatus::none) {
-            labelAWidget.setStyleQss("border-style", "solid");
-            labelAWidget.setStyleQss("border-width", "1px 0px 1px 1px");
-            labelAWidget.setStyleQss("border-color", themeConfig.colorBorder);
 
-            editWidget->setStyleQss("border", "1px solid " + themeConfig.colorBorder);
-            editWidget->setStyleQss("hover", "border", "1px solid " + themeConfig.hoverBorderColor);
-            editWidget->setStyleQss("focus", "border", "1px solid " + themeConfig.activeBorderColor);
+        if (attr.variant == InputAttrVariant::outlined) {
+            if (attr.status == InputAttrStatus::none) {
+                beforeWidget->setStyleQss("border-style", "solid");
+                beforeWidget->setStyleQss("border-width", "1px 0px 1px 1px");
+                beforeWidget->setStyleQss("border-color", themeConfig.colorBorder);
 
-            buttonStyle << ":!hover{ border-style:none ;background-color:  " + themeConfig.colorPrimary + " ;color:white; padding-left:5px;padding-right:5px;}";
-            buttonStyle << ":hover{ border-style:none ;background-color:  " + themeConfig.colorPrimaryHover + " ; color:white;padding-left:5px;padding-right:5px;}";
-        } else if (attr.status == InputAttrStatus::warning) {
+                afterWidget->setStyleQss("border-style", "solid");
+                afterWidget->setStyleQss("border-width", "1px 1px 1px 0px");
+                afterWidget->setStyleQss("border-color", themeConfig.colorBorder);
 
-        } else if (attr.status == InputAttrStatus::error) {
 
+                editWidget->setStyleQss("border", "1px solid " + themeConfig.colorBorder);
+                editWidget->setStyleQss("hover", "border", "1px solid " + themeConfig.hoverBorderColor);
+                editWidget->setStyleQss("focus", "border", "1px solid " + themeConfig.activeBorderColor);
+            } else if (attr.status == InputAttrStatus::warning) {
+
+            } else if (attr.status == InputAttrStatus::error) {
+
+            }
+        } else if (attr.variant == InputAttrVariant::borderless) {
+            beforeWidget->setStyleQss("border", "none");
+            afterWidget->setStyleQss("border", "none");
+            editWidget->setStyleQss("border", "none");
+        } else if (attr.variant == InputAttrVariant::filled) {
+            this->layout()->setMargin(0);
+            beforeWidget->setStyleQss("border", "none");
+            afterWidget->setStyleQss("border", "none");
+            editWidget->setStyleQss("border", "none");
+
+//            this->setStyleQss("background-color", themeConfig.colorDisabled);
+//            this->setStyleQss("hover", "background-color", "none");
+
+//            labelAWidget.setStyleQss("background-color", themeConfig.colorDisabled);
+//            labelAWidget.setStyleQss("hover", "background-color", "none");
+//
+            editWidget->setStyleQss("background-color", themeConfig.colorInputFilledBG);
+            editWidget->setStyleQss("hover", "background-color", themeConfig.colorInputFilledHoverBG);
+
+            inputAWidget.setStyleQss("background-color", themeConfig.colorInputFilledBG);
+            inputAWidget.setStyleQss("hover", "background-color", themeConfig.colorInputFilledHoverBG);
+//            inputAWidget.setStyleQss("focus", "background-color", "none");
         }
 
+        if (attr.addonBefore != nullptr) {
+            beforeWidget->addWidget(attr.addonBefore);
+            beforeWidget->setStyleQss("border-top-left-radius", std::to_string(themeConfig.borderRadius) + "px");
+            beforeWidget->setStyleQss("border-bottom-left-radius", std::to_string(themeConfig.borderRadius) + "px");
+            beforeWidget->setStyleQss("background-color", themeConfig.addonBg);
 
-        if (!attr.addonBefore.isEmpty()) {
-            auto *label = new QLabel(this);
-            label->setText(attr.addonBefore);
-            label->setStyleSheet(labelAWidget.getJoinStyles());
 
-            label->setFont(font);
-//            label->setFixedHeight(themeConfig.inputFontSize + themeConfig.paddingBlock * 2);
-            layout->addWidget(label);
+            beforeWidget->setStyleSheet(beforeWidget->getJoinStyles());
+
+            beforeWidget->setFont(font);
+            layout->addWidget(beforeWidget);
+        } else {
+            editWidget->setStyleQss("border-top-left-radius", std::to_string(themeConfig.borderRadius) + "px");
+            editWidget->setStyleQss("border-bottom-left-radius", std::to_string(themeConfig.borderRadius) + "px");
         }
         editWidget->layout()->setMargin(2);
         layout->addWidget(editWidget);
-        editWidget->enterEventCB = [editWidget](QEvent *event) -> void {
+        editWidget->enterEventCB = [this](QEvent *event) -> void {
+            auto themeConfig = InputConfig::Instance();
             if (editWidget->layout() != nullptr) {
                 QLayoutItem *child;
                 auto count = editWidget->layout()->count();
                 for (int index = 0; index < count; index++) {
                     child = editWidget->layout()->itemAt(index);
                     if (child && child->widget()) {
-                        LOG_INFO(child->widget()->styleSheet().toStdString())
-                        child->widget()->setStyleSheet(QString::fromStdString(":!hover{border:none;padding:0;}:hover{border:none;padding:0;}"));
-                        editWidget->setStyleSheet(editWidget->getJoinStyles());
-                        LOG_INFO(editWidget)
-                        LOG_INFO(child->widget())
-                        LOG_INFO(editWidget->styleSheet().toStdString())
+                        if (this->attr.variant == InputAttrVariant::filled) {
+                            child->widget()->setStyleSheet(QString::fromStdString(":!hover{background-color:" + themeConfig.colorInputFilledHoverBG + ";padding:0;"
+                                                                                                                                                      "}:hover{background-color:" +
+                                                                                  themeConfig.colorInputFilledHoverBG + ";padding:0;"
+                                                                                                                        "}"));
+                            editWidget->setStyleSheet(editWidget->getJoinStyles());
+                        } else {
+                            child->widget()->setStyleSheet(QString::fromStdString(":!hover{border:none;padding:0;}:hover{border:none;padding:0;}"));
+                            editWidget->setStyleSheet(editWidget->getJoinStyles());
+                        }
+
                     }
                 }
             }
         };
-        editWidget->leaveEventCB = [editWidget](QEvent *event) -> void {
+        editWidget->leaveEventCB = [this](QEvent *event) -> void {
+            auto themeConfig = InputConfig::Instance();
+            if (editWidget->layout() != nullptr) {
+                QLayoutItem *child;
+                auto count = editWidget->layout()->count();
+                for (int index = 0; index < count; index++) {
+                    child = editWidget->layout()->itemAt(index);
+                    if (child && child->widget()) {
+                        if (this->attr.variant == InputAttrVariant::filled) {
+                            if (!this->editFocus) {
+                                child->widget()->setStyleSheet(QString::fromStdString(":!hover{background-color:" + themeConfig.colorInputFilledBG + ";padding:0;"
+                                                                                                                                                     "}:hover{background-color:" +
+                                                                                      themeConfig.colorInputFilledBG + ";padding:0;"
+                                                                                                                       "}"));
+                                this->editWidget->setStyleQss("background-color", themeConfig.colorInputFilledBG);
+                                this->editWidget->setStyleQss("hover", "background-color", themeConfig.colorInputFilledHoverBG);
+                                this->editWidget->setStyleSheet(editWidget->getJoinStyles());
+                            }
+                        }else{
+                            this->editWidget->setStyleSheet(editWidget->getJoinStyles());
+                        }
+
+                    }
+                }
+            }
         };
 
         if (attr.prefix) {
@@ -129,9 +203,8 @@ namespace wl {
 //            editWidget->addWidget(attr.prefix);
         }
 
-        auto *edit = new QLineEdit(this);
         edit->setFont(font);
-        edit->setPlaceholderText("...");
+        edit->setPlaceholderText(attr.placeholder);
         inputAWidget.setStyleQss("border", "none");
         inputAWidget.setStyleQss("padding", "0px");
         edit->setStyleSheet(inputAWidget.getJoinStyles());
@@ -144,26 +217,59 @@ namespace wl {
             tmp->setFixedSize(16, 16);
             editWidget->addWidget(tmp);
         }
+
+        if (this->attr.addonAfter != nullptr) {
+            afterWidget->addWidget(attr.addonAfter);
+            afterWidget->setStyleQss("border-top-right-radius", std::to_string(themeConfig.borderRadius) + "px");
+            afterWidget->setStyleQss("border-bottom-right-radius", std::to_string(themeConfig.borderRadius) + "px");
+            afterWidget->setStyleQss("background-color", themeConfig.addonBg);
+            afterWidget->setStyleSheet(afterWidget->getJoinStyles());
+            afterWidget->setFont(font);
+
+            layout->addWidget(afterWidget);
+        } else {
+            editWidget->setStyleQss("border-top-right-radius", std::to_string(themeConfig.borderRadius) + "px");
+            editWidget->setStyleQss("border-bottom-right-radius", std::to_string(themeConfig.borderRadius) + "px");
+        }
         editWidget->setStyleSheet(editWidget->getJoinStyles());
 
-        if (0) {
-            auto *btn = new QPushButton(this);
-            btn->setText("TEXT");
-//            btn->setFixedHeight(themeConfig.inputFontSize + themeConfig.paddingBlock * 2);
-            btn->setStyleSheet(QString::fromStdString(buttonStyle.str()));
-            btn->setFont(font);
-            layout->addWidget(btn);
-        }
 //        layout->addItem(new QSpacerItem(1, 1, QSizePolicy::Maximum, QSizePolicy::Minimum));
         this->setLayout(layout);
-
-        LOG_INFO(this->getJoinStyles().toStdString());
-//        this->setStyleSheet("padding-left:10px");
-//        this->setStyleSheet(this->getJoinStyles());
+        this->setStyleQss("border-radius", std::to_string(themeConfig.borderRadius) + "px");
+        this->setStyleSheet(this->getJoinStyles());
     }
 
     Input::Input(const InputAttr &inputAttr, QWidget *parent) : QWidget(parent) {
         this->setAttr(inputAttr);
+    }
+
+    void Input::editFocusChange(QFocusEvent *e) {
+        auto themeConfig = InputConfig::Instance();
+        this->editFocus = e->gotFocus();
+        if (e->gotFocus()) {
+            if (this->attr.variant == InputAttrVariant::filled) {
+                auto *edit = dynamic_cast<QWidget *>(sender());
+                if (edit) {
+                    this->editWidget->setStyleQss("background-color", "none");
+                    this->editWidget->setStyleQss("hover", "background-color", "none");
+                    this->editWidget->setStyleSheet(this->editWidget->getJoinStyles());
+                    edit->setStyleSheet(":!hover{background-color:none;padding:0;}:hover{background-color:none;padding:0;}");
+                }
+            }
+        } else {
+            if (this->attr.variant == InputAttrVariant::filled) {
+                auto *edit = dynamic_cast<QWidget *>(sender());
+                if (edit) {
+                    edit->setStyleSheet(
+                            ":!hover{background-color:" + QString::fromStdString(themeConfig.colorInputFilledBG) + ";padding:0;}:hover{background-color:none;padding:0;}");
+                }
+                this->editWidget->setStyleQss("background-color", themeConfig.colorInputFilledBG);
+                this->editWidget->setStyleQss("hover", "background-color", themeConfig.colorInputFilledHoverBG);
+                this->editWidget->setStyleSheet(this->editWidget->getJoinStyles());
+            }
+//            LOG_INFO("no")
+        }
+
     }
 
 }

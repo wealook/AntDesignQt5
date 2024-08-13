@@ -12,8 +12,7 @@ int main(int argc, char *argv[]) {
 #else
     logType |= SRSLogger::eLogSys;
 #endif
-    wl::Logger::instance().init("occt", static_cast<wl::Logger::LogTarget>(logType), wl::Logger::LogLevel::eLogInfo,
-                                "occt");
+    wl::Logger::instance().init("occt", static_cast<wl::Logger::LogTarget>(logType), wl::Logger::LogLevel::eLogInfo, "occt");
     QApplication a(argc, argv);
     MainWindow w;
     w.show();

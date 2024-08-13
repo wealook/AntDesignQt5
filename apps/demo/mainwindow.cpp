@@ -25,9 +25,11 @@
 #include "DemoIconWidget.h"
 #include "DemoTypography.h"
 #include "DemoInputWidget.h"
+#include "DemoCheckBoxWidget.h"
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow) {
     ui->setupUi(this);
+    this->setWindowTitle("AntDesignQt5");
     this->widgetsMap["select"] = new DemoSelectWidget();
     this->widgetsMap["divider"] = new DemoDividerWidget();
     this->widgetsMap["card"] = new DemoCardWidget();
@@ -35,6 +37,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     this->widgetsMap["button"] = new DemoButtonWidget();
     this->widgetsMap["typography"] = new DemoTypography();
     this->widgetsMap["input"] = new DemoInputWidget();
+    this->widgetsMap["checkbox"] = new DemoCheckBoxWidget();
 //    this->widgetsMap["icon"] = new DemoIconWidget();
 
     baseLayout_ = new wl::Layout(this);
@@ -70,6 +73,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     }
     {
         auto tmpItems = wl::MenuItem("数据录入", "data-input");
+        tmpItems.children.emplace_back("Checkbox多选框", "checkbox");
         tmpItems.children.emplace_back("Input输入框", "input");
         menu->menuItems.push_back(tmpItems);
 

@@ -1,30 +1,46 @@
 
 #include "HWidget.h"
 #include "QHBoxLayout"
+#include "QMouseEvent"
 
-wl::HWidget::HWidget(QWidget *parent) : QWidget(parent) {
-    auto *ly = new QHBoxLayout();
-    this->setLayout(ly);
-    ly->setSpacing(0);
-    ly->setMargin(0);
-//    ly->addSpacerItem(new QSpacerItem(1, 1, QSizePolicy::Expanding, QSizePolicy::Minimum));
-}
+namespace wl {
 
-void wl::HWidget::addWidget(QWidget *wid) {
-    auto *ly = dynamic_cast<QHBoxLayout *>(this->layout());
-    ly->insertWidget(ly->count(), wid);
-}
-
-void wl::HWidget::enterEvent(QEvent *event) {
-    if (this->enterEventCB) {
-        this->enterEventCB(event);
+    HWidget::HWidget(QWidget *parent, bool spacer) : QWidget(parent) {
+        auto *ly = new QHBoxLayout();
+        this->setLayout(ly);
+        ly->setSpacing(0);
+        ly->setMargin(0);
+        this->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        if (spacer) {
+            ly->addSpacerItem(new QSpacerItem(1, 1, QSizePolicy::Expanding, QSizePolicy::Minimum));
+        } else {
+        }
     }
-    QWidget::enterEvent(event);
-}
 
-void wl::HWidget::leaveEvent(QEvent *event) {
-    if (this->leaveEventCB) {
-        this->leaveEventCB(event);
+    void HWidget::addWidget(QWidget *wid) {
+        auto *ly = dynamic_cast<QHBoxLayout *>(this->layout());
+        ly->insertWidget(ly->count() - 1, wid, 0, Qt::AlignmentFlag::AlignRight);
     }
-    QWidget::leaveEvent(event);
+
+    void HWidget::enterEvent(QEvent *event) {
+        if (this->enterEventCB) {
+            this->enterEventCB(event);
+        }
+        QWidget::enterEvent(event);
+    }
+
+    void HWidget::leaveEvent(QEvent *event) {
+        if (this->leaveEventCB) {
+            this->leaveEventCB(event);
+        }
+        QWidget::leaveEvent(event);
+    }
+
+    void HWidget::mousePressEvent(QMouseEvent *event) {
+        emit clicked();
+    }
+
+    void HWidget::mouseReleaseEvent(QMouseEvent *event) {
+    }
+
 }

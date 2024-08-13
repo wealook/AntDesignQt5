@@ -19,8 +19,8 @@ namespace wl {
         }
         if (attr.children == nullptr && attr.childrenText.isEmpty()) {
             this->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-            this->setFixedHeight(101);
-            this->setStyleSheet("border: 1px solid " + QString::fromStdString(themeConfig.colorBorder) + ";margin-top:50px;margin-bottom:50px;");
+            this->setFixedHeight(49);
+            this->setStyleSheet("border: 1px solid " + QString::fromStdString(themeConfig.colorBorder) + ";margin-top:24px;margin-bottom:24px;");
             return;
         }
 
@@ -35,12 +35,12 @@ namespace wl {
 
         auto *left = new QWidget(this);
         left->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-        left->setFixedHeight(101);
-        left->setStyleSheet("border: 1px solid " + QString::fromStdString(themeConfig.colorBorder) + ";margin-top:50px;margin-bottom:50px;margin-right:10px;");
+        left->setFixedHeight(55);
+        left->setStyleSheet("border: 1px solid " + QString::fromStdString(themeConfig.colorBorder) + ";margin-top:27px;margin-bottom:27px;margin-right:10px;");
         auto *right = new QWidget(this);
         right->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-        right->setFixedHeight(101);
-        right->setStyleSheet("border: 1px solid " + QString::fromStdString(themeConfig.colorBorder) + ";margin-top:50px;margin-bottom:50px;margin-left:10px;");
+        right->setFixedHeight(55);
+        right->setStyleSheet("border: 1px solid " + QString::fromStdString(themeConfig.colorBorder) + ";margin-top:27px;margin-bottom:27px;margin-left:10px;");
         ly->addWidget(left);
         ly->addWidget(wid);
         ly->addWidget(right);
@@ -60,6 +60,12 @@ namespace wl {
             this->layout()->itemAt(0)->widget()->setFixedWidth(left);
         }
         QWidget::resizeEvent(event);
+    }
+
+    Divider *Divider::createLeft(const QString &text) {
+        auto diverAttr = wl::DividerAttr(text);
+        diverAttr.orientation = wl::DividerAttrOrientation::left;
+        return new Divider(diverAttr);
     }
 
 }

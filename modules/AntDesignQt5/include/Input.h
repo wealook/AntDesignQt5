@@ -4,11 +4,14 @@
 #include <vector>
 #include "AWidget.h"
 #include "InputAttr.h"
+#include "HWidget.h"
 
 namespace wl {
 
     class Input : public QWidget, public AWidget {
 
+    public:
+    Q_OBJECT
     public:
 
         explicit Input(QWidget *parent = nullptr);
@@ -19,10 +22,18 @@ namespace wl {
 
         void setAttr(const InputAttr &inputAttr);
 
-    protected :
+    protected       slots:
+
+
+        void editFocusChange(QFocusEvent *e);
+
 
     private:
         InputAttr attr;
+
+        bool editFocus = false;
+
+        HWidget* editWidget;
     };
 
 }

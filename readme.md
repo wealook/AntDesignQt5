@@ -85,6 +85,10 @@ cmake ..
 * AutoComplete自动完成
 * Cascader级联选择
 * Checkbox多选框
+
+ ![Checkbox多选框](./docs/checkbox-001.png)
+ ![Checkbox多选框](./docs/checkbox-002.png)
+
 * ColorPicker颜色选择器
 * DatePicker日期选择框
 * Form表单
