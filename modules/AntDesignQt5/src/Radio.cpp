@@ -1,4 +1,4 @@
-#include "CheckBox.h"
+#include "Radio.h"
 #include "HWidget.h"
 #include "QLayout"
 #include "ThemeConfig.h"
@@ -12,17 +12,18 @@
 namespace wl {
 
 
-    RectCheck::RectCheck(QWidget *parent) : QWidget(parent) {
+    RoundRadio::RoundRadio(QWidget *parent) : QWidget(parent) {
+        this->setFixedSize(16, 16);
+        auto w = this->width();
         auto themeConfig = ThemeConfig::Instance();
-        this->setStyleQss("border-radius", std::to_string(themeConfig.borderRadiusSM) + "px");
+        this->setStyleQss("border-radius", std::to_string(w / 2) + "px");
 //            this->setStyleQss("hover", "background-color", themeConfig.colorPrimary);
         this->setStyleQss("border", "1px  solid " + themeConfig.colorDisabledBorder);
         this->setStyleQss("hover", "border", "1px  solid " + themeConfig.colorPrimary);
         this->setStyleSheet(this->getJoinStyles());
-        this->setFixedSize(16, 16);
     }
 
-    void RectCheck::paintEvent(QPaintEvent *event) {
+    void RoundRadio::paintEvent(QPaintEvent *event) {
         QPainter painter(this);
         {
 //            https://blog.csdn.net/dee53994040/article/details/102178938
@@ -30,7 +31,6 @@ namespace wl {
             QStyleOption opt;
             opt.init(this);
             style()->drawPrimitive(QStyle::PE_Widget, &opt, &painter, this);
-
         }
 
 
@@ -52,67 +52,50 @@ namespace wl {
         }
         painter.setRenderHint(QPainter::Antialiasing, true);
         painter.setRenderHints(QPainter::SmoothPixmapTransform, true);//平滑处理
-
         QPen pen;
-        pen.setColor(Qt::white);
-        pen.setWidth(2);
-        painter.setPen(pen);
         pen.setJoinStyle(Qt::MiterJoin);
         auto w = this->width();
         auto h = this->height();
-        auto w2 = 8;
-        auto h2 = 4;
+        auto w2 = 6;
+        auto h2 = 6;
         if (state == 1) {
+            auto brush = QBrush();
             if (this->isEnabled()) {
                 this->setStyleQss("background-color", themeConfig.colorPrimary);
                 this->setStyleQss("hover", "background-color", themeConfig.colorPrimaryHover);
                 this->setStyleQss("border", "none");
                 this->setStyleQss("hover", "border", "none");
+                pen.setColor(Qt::white);
+                pen.setWidth(1);
+                painter.setPen(pen);
+                brush.setColor(Qt::white);
             } else {
                 this->setStyleQss("background-color", themeConfig.colorDisabled);
                 this->setStyleQss("border", "1px  solid " + themeConfig.colorDisabledBorder);
                 pen.setColor(Util::fromCssColor(themeConfig.colorTextDisabled));
+                pen.setWidth(1);
                 painter.setPen(pen);
-            }
-
-
-            this->setStyleSheet(this->getJoinStyles());
-            // 旋转和平移都是针对坐标系的
-            painter.translate(w / 2, h / 2);
-            painter.rotate(-45);
-            painter.drawLine(QPoint(-w2 / 2, -h2 / 2), QPoint(-w2 / 2, h2 / 2));
-            painter.drawLine(QPoint(-w2 / 2, h2 / 2), QPoint(w2 / 2, h2 / 2));
-            return;
-        }
-        if (state == 2) {
-            auto brush = QBrush();
-            brush.setColor(Util::fromCssColor(themeConfig.colorPrimary));
-            if (this->isEnabled()) {
-                this->setStyleQss("background-color", "none");
-                this->setStyleQss("hover", "background-color", "none");
-                this->setStyleQss("border", "1px  solid " + themeConfig.colorDisabledBorder);
-                this->setStyleQss("hover", "border", "1px  solid " + themeConfig.colorPrimary);
-            } else {
-                this->setStyleQss("background-color", "none");
-                this->setStyleQss("border", "1px  solid " + themeConfig.colorTextDisabled);
                 brush.setColor(Util::fromCssColor(themeConfig.colorTextDisabled));
+                w2 = 8;
+                h2 = 8;
             }
             this->setStyleSheet(this->getJoinStyles());
             brush.setStyle(Qt::SolidPattern);
             painter.setBrush(brush);
-            painter.drawRect(QRect(w / 4 - 1, h / 4 - 1, w / 2 + 2, h / 2 + 2));
+            painter.translate(w / 2, h / 2);
+            painter.drawEllipse(QRect(-w2 / 2, -h2 / 2, w2, h2));
+//            LOG_INFO("w:" << w << "," << h)
+//            LOG_INFO("w2:" << w2 << "," << h2)
             return;
         }
-
-
     }
 
-    int RectCheck::getState() const {
+    int RoundRadio::getState() const {
         return state;
     }
 
 
-    CheckBox::CheckBox(const CheckBoxAttr &attr, QWidget *parent) : attr(attr), QWidget(parent) {
+    Radio::Radio(const RadioAttr &attr, QWidget *parent) : attr(attr), QWidget(parent) {
         auto *layout = new QHBoxLayout();
         layout->setMargin(0);
         layout->setSpacing(0);
@@ -121,27 +104,23 @@ namespace wl {
         QFont font;
         font.setPixelSize(themeConfig.fontSize);
 
-        auto *check = new RectCheck();
+        auto *check = new RoundRadio();
         check->setMinimumWidth(16);
         check->setFixedSize(16, 16);
         if (this->attr.defaultChecked || this->attr.checked) {
             check->setState(1);
-        } else if (this->attr.indeterminate) {
-            check->setState(2);
         }
         check->setDisabled(this->attr.disabled);
         connect(check, SIGNAL(clicked()), this, SLOT(onClicked()));
         layout->addWidget(check);
         if (!this->attr.text.isEmpty()) {
-            auto widget = new HWidget(this);
-//            widget->setFixed();
+            auto widget = new HWidget(this, true);
             auto textAttr = TextAttr();
             textAttr.fontSize = 16;
             auto *label = new Text(this->attr.text, textAttr);
             label->setDisabled(this->attr.disabled);
             widget->addWidget(label);
             widget->setContentsMargins(8, 0, 8, 0);
-            widget->setStyleSheet(widget->getJoinStyles());
             connect(widget, SIGNAL(clicked()), this, SLOT(onClicked()));
             layout->addWidget(widget);
         }
@@ -149,13 +128,13 @@ namespace wl {
         this->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     }
 
-    void CheckBox::resizeEvent(QResizeEvent *event) {
+    void Radio::resizeEvent(QResizeEvent *event) {
         QWidget::resizeEvent(event);
     }
 
-    void CheckBox::onClicked() {
-//        LOG_INFO(sender())
-        auto obj = dynamic_cast<RectCheck *>(this->layout()->itemAt(0)->widget());
+    void Radio::onClicked() {
+        LOG_INFO(sender())
+        auto obj = dynamic_cast<RoundRadio *>(this->layout()->itemAt(0)->widget());
         if (obj) {
             if (obj->getState() == 2 || obj->getState() == 0) {
                 obj->setState(1);
@@ -166,7 +145,7 @@ namespace wl {
         LOG_INFO("onClicked")
     }
 
-    CheckBoxGroup::CheckBoxGroup(const CheckBoxGroupAttr &attr, QWidget *parent) : QWidget(parent), attr(attr) {
+    RadioGroup::RadioGroup(const RadioGroupAttr &attr, QWidget *parent) : QWidget(parent), attr(attr) {
         auto *layout = new QHBoxLayout();
         layout->setMargin(0);
         layout->setSpacing(0);
@@ -183,10 +162,8 @@ namespace wl {
             } else {
                 tmp->setStyleSheet("HWidget::{margin-right:10px}");
             }
-//            tmp->addWidget(new CheckBox(this->attr.options[index].label));
-            tmp->addWidget(new CheckBox(CheckBoxAttr(this->attr.options[index].label)));
+            tmp->addWidget(new Radio(RadioAttr(this->attr.options[index].label)));
             wi->addWidget(tmp);
         }
-//        this->setStyleSheet("border: 1px solid red;");
     }
 }

@@ -14,9 +14,7 @@
 
 namespace wl {
 
-    Input::Input(QWidget *parent) {
 
-    }
 
     const InputAttr &Input::getAttr() const {
         return attr;

@@ -14,7 +14,6 @@ namespace wl {
     Q_OBJECT
     public:
 
-        explicit Input(QWidget *parent = nullptr);
 
         explicit Input(const InputAttr &inputAttr, QWidget *parent = nullptr);
 

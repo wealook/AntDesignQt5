@@ -32,6 +32,18 @@ namespace wl {
     void Content::setContentWidget(QWidget *pWidget) {
         this->takeWidget();
         this->contentWidget = pWidget;
+        this->contentWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
         this->setWidget(contentWidget);
+    }
+
+    void Content::paintEvent(QPaintEvent *event) {
+        QAbstractScrollArea::paintEvent(event);
+        if (this->contentWidget) {
+//            if (this->widget()->width() < event->size().width()) {
+// TODO 根据情况调整是否设置为固定宽度
+            this->widget()->setFixedWidth(this->size().width());
+//            }
+//            LOG_INFO(this->widget()->size().width() << "," << this->widget()->size().height())
+        }
     }
 }

@@ -13,12 +13,6 @@ namespace wl {
 
         AWidget();
 
-        void setStyleQss(const std::string &group, const std::string &k, const std::string &v) {
-            if (this->styles.find(group) == this->styles.end()) {
-                this->styles[group] = std::unordered_map<std::string, std::string>();
-            }
-            this->styles[group][k] = v;
-        }
 
         bool existStyleQss(const std::string &group, const std::string &k) {
             if (this->styles.find(group) != this->styles.end()) {
@@ -33,6 +27,18 @@ namespace wl {
             if (!this->existStyleQss("hover", k)) {
                 this->setStyleQss("hover", k, v);
             }
+        }
+
+        void setStyleQss(const std::string &group, const std::string &k, const std::string &v) {
+            if (this->styles.find(group) == this->styles.end()) {
+                this->styles[group] = std::unordered_map<std::string, std::string>();
+            }
+            this->styles[group][k] = v;
+        }
+
+        void setStyleQssFource(const std::string &k, const std::string &v) {
+            this->setStyleQss("!hover", k, v);
+            this->setStyleQss("hover", k, v);
         }
 
         std::unordered_map<std::string, std::string> getStyleQss(const std::string &group) {

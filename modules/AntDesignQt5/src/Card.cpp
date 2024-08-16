@@ -1,5 +1,5 @@
 //
- ///7/9.
+///7/9.
 //
 
 #include "Card.h"
@@ -15,7 +15,8 @@ namespace wl {
 
     Card::Card(QWidget *parent) : QWidget(parent) {
         ThemeConfig themeConfig = ThemeConfig::Instance();
-        this->setStyleQss("border", "1px solid " + themeConfig.colorBorder);
+        this->setStyleQss("QWidget", "border-radius", std::to_string(themeConfig.borderRadiusLG) + "px");
+        this->setStyleQss("QWidget", "border", "1px solid " + themeConfig.colorBorder);
         this->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
         this->setMinimumWidth(100);
 //        this->setMinimumHeight(600);
@@ -69,11 +70,6 @@ namespace wl {
     }
 
     void Card::resizeEvent(QResizeEvent *event) {
-//        LOG_INFO(this->content_->geometry().size().width())
-//        LOG_INFO(this->content_->geometry().size().height())
-        if (this->contentWidget_) {
-            this->contentWidget_->setGeometry(QRect(0, 0, this->content_->width(), this->content_->height()));
-        }
         QWidget::resizeEvent(event);
     }
 }

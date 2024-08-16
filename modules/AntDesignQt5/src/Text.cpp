@@ -8,7 +8,7 @@
 namespace wl {
 
     Text::Text(const QString &text, QWidget *parent) : QWidget(parent) {
-        this->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
+        this->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
         this->setMinimumWidth(10);
         auto *ly = new QHBoxLayout(this);
         ly->setSpacing(0);
@@ -22,6 +22,8 @@ namespace wl {
         this->attr_ = textAttr;
         auto themeConfig = ThemeConfig::Instance();
         AWidget aWidget;
+        aWidget.setStyleQss("padding", "0px");
+        aWidget.setStyleQss("margin", "0px");
         aWidget.setStyleQss("height", "24px");
         aWidget.setStyleQss("font-size", "16px");
         if (this->attr_.type == GeneralAttrColorType::secondary) {

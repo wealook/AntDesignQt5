@@ -26,6 +26,8 @@
 #include "DemoTypography.h"
 #include "DemoInputWidget.h"
 #include "DemoCheckBoxWidget.h"
+#include "DemoRadioWidget.h"
+#include "DemoSwitchWidget.h"
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow) {
     ui->setupUi(this);
@@ -38,6 +40,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     this->widgetsMap["typography"] = new DemoTypography();
     this->widgetsMap["input"] = new DemoInputWidget();
     this->widgetsMap["checkbox"] = new DemoCheckBoxWidget();
+    this->widgetsMap["radio"] = new DemoRadioWidget();
+    this->widgetsMap["switch"] = new DemoSwitchWidget();
 //    this->widgetsMap["icon"] = new DemoIconWidget();
 
     baseLayout_ = new wl::Layout(this);
@@ -69,14 +73,15 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
         tmpItems.children.emplace_back("Layout布局", "general-button");
         tmpItems.children.emplace_back("Space间距", "general-button");
         menu->menuItems.push_back(tmpItems);
-
     }
     {
         auto tmpItems = wl::MenuItem("数据录入", "data-input");
         tmpItems.children.emplace_back("Checkbox多选框", "checkbox");
         tmpItems.children.emplace_back("Input输入框", "input");
+        tmpItems.children.emplace_back("Radio 单选框", "radio");
+        tmpItems.children.emplace_back("Select 选择器", "select");
+        tmpItems.children.emplace_back("Switch 开关", "switch");
         menu->menuItems.push_back(tmpItems);
-
     }
     {
         auto tmpItems = wl::MenuItem("数据展示", "data-show");

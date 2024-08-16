@@ -123,7 +123,7 @@ namespace wl {
         spdlog::set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%f] %^[%l]%$ [pid=%P tid=%t] %v");
         spdlog::flush_on(static_cast<spdlog::level::level_enum>(level));
 
-        spdlog::info("SRSLogger initialized...");
+        spdlog::info("Logger initialized...");
         if (static_cast<int>(target) & static_cast<int>(LogTarget::eLogFile))
             spdlog::info("File logging was enabled, log was saved at: {}", outFolder);
         inited_ = true;

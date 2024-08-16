@@ -155,6 +155,7 @@ namespace wl {
         std::string colorDisabled = "rgb(245,245,245)";
         std::string colorDisabledText = "rgb(217,217,217)";
         std::string colorDisabledBorder = "rgb(217,217,217)";
+        std::string colorDisabledDepth = "rgb(191,191,191)";
 
         std::string colorBgTextMark = "rgb(255, 229, 143 )";    //	第三级文本色一般用于描述性文本，例如表单的中的补充说明文本、列表的描述性文本等场景。
         std::string colorBgTextCode = "rgba(150, 150, 150 ,0.1)";    //	第三级文本色一般用于描述性文本，例如表单的中的补充说明文本、列表的描述性文本等场景。
@@ -178,7 +179,8 @@ namespace wl {
         std::string colorIconHover = "rgba(0, 0, 0, 0.88)";//	控制弱操作图标在悬浮状态下的颜色，例如 allowClear 或 Alert 关闭按钮。
         std::string colorSplit = "rgba(5, 5, 5, 0.06)";//	用于作为分割线的颜色，此颜色和 colorBorderSecondary 的颜色一致，但是用的是透明色。
         std::string colorTextDescription = "rgba(0, 0, 0, 0.45)";//	控制文本描述字体颜色。
-        std::string colorTextDisabled = "rgba(0, 0, 0, 0.25)";//	控制禁用状态下的字体颜色。
+//        std::string colorTextDisabled = "rgba(0, 0, 0, 0.25)";//	控制禁用状态下的字体颜色。
+        std::string colorTextDisabled = "rgb(140, 140, 140)";//	控制禁用状态下的字体颜色。
         std::string colorTextHeading = "rgba(0, 0, 0, 0.88)";//	控制标题字体颜色。
         std::string colorTextLabel = "rgba(0, 0, 0, 0.65)";//	控制文本标签字体颜色。
         std::string colorTextLightSolid = "#fff";//	控制带背景色的文本，例如 Primary Button 组件中的文本高亮颜色。

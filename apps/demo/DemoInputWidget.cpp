@@ -92,22 +92,6 @@ DemoInputWidget::DemoInputWidget(QWidget *parent) : DemoContentWidget(parent) {
         attr.addonAfter = new QLabel(".com");
         wi->addWidget(new wl::Input(attr));
 
-        {
-            auto *pSelect = new wl::Select(this);
-            auto attrSelect = pSelect->getAttr();
-            attrSelect.fixedWidth = 150;
-            attrSelect.selectHeight = 200;
-
-            attrSelect.options.clear();
-            for (int index = 0; index <= 10; index++) {
-                attrSelect.options.emplace_back(
-                        QString("item" + QString::fromStdString(std::to_string(index))).toStdWString(),
-                        QString("item" + QString::fromStdString(std::to_string(index))).toStdWString()
-                );
-            }
-            pSelect->setAttr(attrSelect);
-            wi->addWidget(pSelect);
-        }
 
         wi->addWidget(wl::Divider::createLeft("前置/后置标签"));
         wi->addWidget(new wl::Text("用于配置一些固定组合。"));

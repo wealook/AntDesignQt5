@@ -12,6 +12,8 @@ namespace wl {
 
         void setContentWidget(QWidget *widget);
 
+        void paintEvent(QPaintEvent *event) override;
+
     private:
         QWidget *contentWidget = nullptr;
     };
