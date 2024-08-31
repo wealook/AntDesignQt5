@@ -7,7 +7,7 @@
 
 namespace wl {
 
-    HWidget::HWidget(QWidget *parent, bool spacer) : QWidget(parent) {
+    HWidget::HWidget(QWidget *parent, bool spacer) : QWidget(parent), AWidget() {
         globalHoverAttributes.emplace_back("background-color");
         // border 常用场景中可能会有冲突
 //        globalHoverAttributes.emplace_back("border");
@@ -22,6 +22,7 @@ namespace wl {
     }
 
     void HWidget::addWidget(QWidget *wid) {
+        wid->setParent(this);
         auto *ly = dynamic_cast<QHBoxLayout *>(this->layout());
         ly->insertWidget(ly->count(), wid);
 //        ly->insertWidget(ly->count() - 1, wid, 0, Qt::AlignmentFlag::AlignRight);
@@ -44,6 +45,7 @@ namespace wl {
                                 }
                             }
                             hwi->setStyleSheet(hwi->getJoinStyles());
+                            hwi->enterEvent(event);
                         }
 
 
@@ -76,6 +78,7 @@ namespace wl {
                                 }
                             }
                             hwi->setStyleSheet(hwi->getJoinStyles());
+                            hwi->leaveEvent(event);
                         }
                     }
                 }
@@ -122,6 +125,57 @@ namespace wl {
 
     void HWidget::setGlobalHover(bool globalHoverPa) {
         this->globalHover = globalHoverPa;
+    }
+
+    void HWidget::setStyleSheet(const QString &styleSheet) {
+        QWidget::setStyleSheet(styleSheet);
+    }
+
+    /**
+     * 只移出，不删除
+     * @param wid
+     */
+    void HWidget::removeWidget(QWidget *wid, bool isDelete) {
+        if (wid == nullptr) {
+            return;
+        }
+        if (this->layout() != nullptr) {
+            QLayoutItem *child;
+            auto count = this->layout()->count();
+            for (int index = 0; index < count; index++) {
+                child = this->layout()->itemAt(index);
+                if (child && child->widget() && child->widget() == wid) {
+                    wid->setParent(nullptr);
+                    if (isDelete) {
+                        delete wid;
+                    }
+                }
+            }
+        }
+    }
+
+    void HWidget::mouseClick(QPoint globalPos) {
+        bool contain = false;
+        if (this->geometry().contains(this->mapToParent(this->mapFromGlobal(globalPos)))) {
+            contain = true;
+            emit clicked();
+        }
+        if (!contain) {
+            return;
+        }
+        if (this->layout() != nullptr) {
+            QLayoutItem *child;
+            auto count = this->layout()->count();
+            for (int index = 0; index < count; index++) {
+                child = this->layout()->itemAt(index);
+                if (child && child->widget()) {
+                    auto *h = dynamic_cast<HWidget *>(child->widget());
+                    if (h != nullptr) {
+                        h->mouseClick(globalPos);
+                    }
+                }
+            }
+        }
     }
 
 }

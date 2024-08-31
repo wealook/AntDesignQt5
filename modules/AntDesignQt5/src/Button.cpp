@@ -14,7 +14,7 @@
 namespace wl {
 
 
-    Button::Button(QWidget *parent) : QWidget(parent) {
+    Button::Button(QWidget *parent) : HWidget(parent) {
     }
 
 
@@ -148,16 +148,17 @@ namespace wl {
 //        QAbstractButton::mouseMoveEvent(e);
     }
 
-    Button::Button(const QString &text, const ButtonAttr &aButtonAttr, QWidget *parent) : QWidget(parent) {
+    Button::Button(const QString &text, const ButtonAttr &aButtonAttr, QWidget *parent) : HWidget(parent) {
+        this->setFixed();
         this->buttonAttr = aButtonAttr;
 
         this->setMouseTracking(true);
         this->setMinimumWidth(20);
-        this->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
+//        this->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
         label_ = new QLabel(text);
-        auto *ly = new QHBoxLayout(this);
+        auto *ly =this->layout();
         ly->setMargin(1);
-        ly->addSpacerItem(new QSpacerItem(1, 0, QSizePolicy::Expanding, QSizePolicy::Minimum));
+        ly->addItem(new QSpacerItem(1, 0, QSizePolicy::Expanding, QSizePolicy::Minimum));
         if (text.length() == 0) {
             label_->setFixedSize(0, 0);
             ly->setSpacing(0);
@@ -165,7 +166,7 @@ namespace wl {
             ly->setSpacing(4);
         }
         ly->addWidget(label_);
-        ly->addSpacerItem(new QSpacerItem(1, 0, QSizePolicy::Expanding, QSizePolicy::Minimum));
+        ly->addItem(new QSpacerItem(1, 0, QSizePolicy::Expanding, QSizePolicy::Minimum));
         this->setButtonAttr(aButtonAttr);
 
     }
@@ -177,11 +178,11 @@ namespace wl {
 
     void Button::mousePressEvent(QMouseEvent *event) {
         LOG_INFO("click")
-        QWidget::mousePressEvent(event);
+        wl::HWidget::mousePressEvent(event);
     }
 
     void Button::mouseReleaseEvent(QMouseEvent *event) {
-        QWidget::mouseReleaseEvent(event);
+        wl::HWidget::mouseReleaseEvent(event);
     }
 
     void Button::mouseDoubleClickEvent(QMouseEvent *event) {
@@ -217,7 +218,7 @@ namespace wl {
             }
         }
         if (event != nullptr) {
-            QWidget::enterEvent(event);
+            wl::HWidget::enterEvent(event);
         }
     }
 
@@ -251,7 +252,7 @@ namespace wl {
             }
         }
         if (event != nullptr) {
-            QWidget::enterEvent(event);
+            wl::HWidget::enterEvent(event);
         }
     }
 }

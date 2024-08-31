@@ -90,6 +90,8 @@ namespace wl {
         std::string colorPrimaryBg = "#e6f4ff";    //	主色浅色背景颜色，一般用于视觉层级较弱的选中状态。
         std::string colorPrimaryBgHover = "#bae0ff";    //	与主色浅色背景颜色相对应的悬浮态颜色。
         std::string colorPrimaryBorder = "#91caff";    //	主色梯度下的描边用色，用在 Slider 等组件的描边上。
+        std::string hoverBorderColor = "#4096ff";//悬浮态边框色
+
         std::string colorPrimaryBorderHover = "#69b1ff";    //	主色梯度下的描边用色的悬浮态，Slider 、Button 等组件的描边 Hover 时会使用。
         std::string colorPrimaryHover = "#4096ff";    //	主色梯度下的悬浮态。
         std::string colorPrimaryText = "#1677ff";    //	主色梯度下的文本颜色。

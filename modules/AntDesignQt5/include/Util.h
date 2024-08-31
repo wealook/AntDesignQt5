@@ -37,6 +37,10 @@ namespace wl {
                 auto v1 = hexCharToAscii(m[1].str()[0], m[1].str()[1]);
                 auto v2 = hexCharToAscii(m[2].str()[0], m[2].str()[1]);
                 auto v3 = hexCharToAscii(m[3].str()[0], m[3].str()[1]);
+//                LOG_INFO(cssColor);
+//                LOG_INFO((int)v1);
+//                LOG_INFO((int)v2);
+//                LOG_INFO((int)v3);
                 return QColor(v1, v2, v3);
             } else if (std::regex_match(cssColor, m, std::regex("rgb\\( *([0-9]{1,3}) *, *([0-9]{1,3}) *, *([0-9]{1,3}) *\\)"))) {
                 return QColor(std::stoi(m[1].str()), std::stoi(m[2].str()), std::stoi(m[3].str()));

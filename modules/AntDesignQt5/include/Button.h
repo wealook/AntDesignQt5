@@ -8,7 +8,7 @@
 #include "QLabel"
 
 namespace wl {
-    class Button : public AWidget, public QWidget {
+    class Button : public HWidget {
     public:
 
         explicit Button(QWidget *parent = nullptr);
@@ -35,7 +35,6 @@ namespace wl {
         void setButtonAttr(const ButtonAttr &aButtonAttr);
 
         void mouseMoveEvent(QMouseEvent *e) override;
-
     private:
         ButtonAttr buttonAttr;
         QLabel *label_ = nullptr;

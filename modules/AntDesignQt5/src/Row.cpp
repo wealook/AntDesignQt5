@@ -77,7 +77,7 @@ namespace wl {
         ly->setSpacing(0);
         ly->setMargin(0);
         this->layout()->addWidget(widget);
-        LOG_INFO(this->width())
+//        LOG_INFO(this->width())
         auto width = this->width();
         auto sizeName = ResponseSize::getResponseSizeName(width);
         for (int index = 0; index < this->cols.size(); index++) {

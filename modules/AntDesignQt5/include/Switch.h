@@ -24,7 +24,7 @@ namespace wl {
 
         void paintEvent(QPaintEvent *event) override;
 
-        void updateAttr(SwitchAttr attr);
+        void updateAttr();
 
     public slots:
 

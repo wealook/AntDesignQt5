@@ -5,6 +5,7 @@
 #include "AWidget.h"
 #include "InputAttr.h"
 #include "HWidget.h"
+#include "WLQLineEdit.h"
 
 namespace wl {
 
@@ -13,26 +14,30 @@ namespace wl {
     public:
     Q_OBJECT
     public:
-
-
         explicit Input(const InputAttr &inputAttr, QWidget *parent = nullptr);
 
         const InputAttr &getAttr() const;
 
         void setAttr(const InputAttr &inputAttr);
 
+        QSize sizeHint() const override;
+
     protected       slots:
 
 
         void editFocusChange(QFocusEvent *e);
 
+    signals:
+
+        void textChanged(const QString &);
 
     private:
         InputAttr attr;
 
         bool editFocus = false;
 
-        HWidget* editWidget;
+        HWidget *editWidget;
+        WLQLineEdit *edit;
     };
 
 }

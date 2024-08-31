@@ -67,4 +67,23 @@ namespace wl {
         auto qIcon = QIcon(this->originPixmap_);
         return qIcon;
     }
+
+    void Icon::enterEvent(QEvent *event) {
+        QWidget::enterEvent(event);
+        emit mouseEnter();
+    }
+
+    void Icon::leaveEvent(QEvent *event) {
+        QWidget::leaveEvent(event);
+        emit mouseLeave();
+    }
+
+    void Icon::mousePressEvent(QMouseEvent *event) {
+        QLabel::mousePressEvent(event);
+        emit clicked();
+    }
+
+    void Icon::mouseReleaseEvent(QMouseEvent *event) {
+        QLabel::mouseReleaseEvent(event);
+    }
 }

@@ -100,6 +100,9 @@ cmake ..
 * Radio单选框
 * Rate评分
 * [Select选择器]()
+* 
+  ![Select选择器](./docs/select-001.png)
+
 * Slider滑动输入条
 * Switch开关
 * TimePicker时间选择框

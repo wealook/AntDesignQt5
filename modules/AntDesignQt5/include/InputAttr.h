@@ -29,8 +29,8 @@ namespace wl {
         }
 
         GeneralAttrSize size = GeneralAttrSize::middle;
-        QWidget *addonBefore;
-        QWidget *addonAfter;
+        QWidget *addonBefore = nullptr;
+        QWidget *addonAfter = nullptr;
 
         InputAttrStatus status = InputAttrStatus::none;
         bool disabled = false;

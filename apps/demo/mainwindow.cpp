@@ -28,6 +28,8 @@
 #include "DemoCheckBoxWidget.h"
 #include "DemoRadioWidget.h"
 #include "DemoSwitchWidget.h"
+#include "DemoTagWidget.h"
+#include "DemoFlexWidget.h"
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow) {
     ui->setupUi(this);
@@ -42,6 +44,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     this->widgetsMap["checkbox"] = new DemoCheckBoxWidget();
     this->widgetsMap["radio"] = new DemoRadioWidget();
     this->widgetsMap["switch"] = new DemoSwitchWidget();
+    this->widgetsMap["tag"] = new DemoTagWidget();
+    this->widgetsMap["flex"] = new DemoFlexWidget();
 //    this->widgetsMap["icon"] = new DemoIconWidget();
 
     baseLayout_ = new wl::Layout(this);
@@ -68,7 +72,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     {
         auto tmpItems = wl::MenuItem("布局", "general");
         tmpItems.children.emplace_back("Divider分割线", "divider");
-        tmpItems.children.emplace_back("Flex弹性布局", "general-button");
+        tmpItems.children.emplace_back("Flex弹性布局", "flex");
         tmpItems.children.emplace_back("Grid栅格", "grid");
         tmpItems.children.emplace_back("Layout布局", "general-button");
         tmpItems.children.emplace_back("Space间距", "general-button");
@@ -86,6 +90,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     {
         auto tmpItems = wl::MenuItem("数据展示", "data-show");
         tmpItems.children.emplace_back("Card卡片", "card");
+        tmpItems.children.emplace_back("Tag 标签", "tag");
         menu->menuItems.push_back(tmpItems);
 
     }

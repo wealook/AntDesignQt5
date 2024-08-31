@@ -15,7 +15,6 @@
 namespace wl {
 
 
-
     const InputAttr &Input::getAttr() const {
         return attr;
     }
@@ -40,10 +39,13 @@ namespace wl {
         inputAWidget.setStyleQss("border-radius", "none");
         buttonAWidget.setStyleQss("border-radius", "none");
         editWidget->setStyleQss("border-radius", "none");
-        auto *edit = new WLQLineEdit(this);
-
+        edit = new WLQLineEdit(this);
+        edit->setText("AAAAAA");
 
         connect(edit, SIGNAL(focusChange(QFocusEvent * )), this, SLOT(editFocusChange(QFocusEvent * )));
+        connect(edit, &WLQLineEdit::textChanged, this, [this](const QString &text) {
+            emit textChanged(text);
+        });
         QFont font;
 
         this->attr = inputAttr;
@@ -183,7 +185,7 @@ namespace wl {
                                 this->editWidget->setStyleQss("hover", "background-color", themeConfig.colorInputFilledHoverBG);
                                 this->editWidget->setStyleSheet(editWidget->getJoinStyles());
                             }
-                        }else{
+                        } else {
                             this->editWidget->setStyleSheet(editWidget->getJoinStyles());
                         }
 
@@ -268,6 +270,11 @@ namespace wl {
 //            LOG_INFO("no")
         }
 
+    }
+
+    QSize Input::sizeHint() const {
+        auto size1 = QWidget::sizeHint();
+        return size1;
     }
 
 }

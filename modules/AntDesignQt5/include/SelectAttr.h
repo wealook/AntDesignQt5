@@ -19,12 +19,20 @@ namespace wl {
     public:
         SelectAttrOption() = default;
 
+        SelectAttrOption(const SelectAttrOption &option) {
+            this->label = option.label;
+            this->value = option.value;
+            this->selected = option.selected;
+        };
+
         SelectAttrOption(std::wstring label, std::wstring value) : label(std::move(label)), value(std::move(value)) {
 
         };
 
         std::wstring label;
+
         std::wstring value;
+        bool selected = false;
     };
 
 
@@ -35,6 +43,6 @@ namespace wl {
         SelectAttrMode mode = SelectAttrMode::none;
         SelectAttrOptions options;
         uint16_t fixedWidth = 100;
-        uint16_t selectHeight = 100;
+        uint16_t selectHeight = 200;
     };
 }

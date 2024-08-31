@@ -7,18 +7,12 @@
 #include <QApplication>
 #include <QScrollBar>
 #include "ThemeConfig.h"
+#include "Icon.h"
 #include <QMouseEvent>
 #include <QLabel>
-
-#include <QPushButton>
+#include "algorithm"
 
 namespace wl {
-    QWidget *getTopLevelWidget(QWidget * widget) {
-        while (widget && widget->parentWidget()) {
-            widget = widget->parentWidget();
-        }
-        return widget;
-    }
 
     SelectArea::SelectArea(QWidget *parent) : QScrollArea(parent) {
         this->verticalScrollBar()->setStyleSheet(R"(
@@ -42,25 +36,19 @@ namespace wl {
         )"
         );
 
+        this->setStyleQss("border", "none");
+        this->setContentsMargins(2, 2, 2, 2);
+        this->setStyleSheet(this->getJoinStyles());
     }
 
     void SelectArea::mousePressEvent(QMouseEvent *event) {
-//        emit areaClicked();
-        LOG_INFO("SelectArea::mousePressEvent")
         QScrollArea::mousePressEvent(event);
     }
 
     void SelectArea::mouseReleaseEvent(QMouseEvent *event) {
-        LOG_INFO("SelectArea::mouseReleaseEvent")
         QScrollArea::mouseReleaseEvent(event);
     }
 
-    bool SelectArea::eventFilter(QObject *watched, QEvent *event) {
-//        emit areaClicked();
-        //   LOG_INFO("SelectArea::eventFilter:" << event->type())
-//        return QAbstractItemView::eventFilter(watched, event);
-        return false;
-    }
 
     bool SelectArea::event(QEvent *e) {
         if (e->type() == QEvent::MouseButtonPress) {
@@ -70,221 +58,478 @@ namespace wl {
                 if (!geometry().contains(event->pos())) {
                     auto gP = this->mapToGlobal(event->pos());
                     LOG_INFO("gp:" << gP.x() << "," << gP.y())
-//                    this->hide();
-//                    return false;
                     emit blankSpaceClicked(gP);
                     // 处理空白位置的点击事件
                 }
             }
         }
         return QScrollArea::event(e);
-    };
+    }
 
-    Select::Select(QWidget *parent) : QWidget(parent) {
-        setFocusPolicy(Qt::ClickFocus);
-        base_ = new QWidget(this);
-//        selectWidget_ = new SelectArea(getTopLevelWidget(base_));
-        selectWidget_ = new SelectArea(base_);
-        selectWidget_->setWindowFlags(Qt::Popup);
-//        selectWidget_->setAttribute(Qt::WA_TranslucentBackground);
-        selectWidget_->show();
+    void SelectArea::renderOptions(const SelectActionOptions &options1, bool update) {
+        auto options = options1;
+        // TODO 排序
+        std::sort(options.begin(), options.end(), [](SelectActionOption &t1, SelectActionOption &t2) {
+            return t1.label < t2.label;
+//            return false;
+        });
+//      auto last  this->verticalScrollBar()->sliderPosition();
+        if (!update) {
+            auto *oldWidget = this->widget();
+            if (oldWidget != nullptr) {
+                oldWidget->setParent(nullptr);
+                delete oldWidget;
+            }
+            auto *widget = new QWidget();
+            widget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+            widget->setLayout(new QVBoxLayout());
+            this->setWidget(widget);
+        }
+
+        auto layout = this->widget()->layout();
+
         auto themeConfig = ThemeConfig::Instance();
-        auto str = ":!hover{border: 1px solid " + themeConfig.colorBorder + ";}:hover{border: 1px solid  " + themeConfig.colorBorder + ";}        ";
-        selectWidget_->setStyleSheet(QString::fromStdString(str));
-        connect(selectWidget_, SIGNAL(areaClicked()), this, SLOT(areaClicked()));
-        connect(selectWidget_, SIGNAL(blankSpaceClicked(QPoint)), this, SLOT(OnBlankSpaceClicked(QPoint)));
-        this->installEventFilter(selectWidget_);
-        this->setVisible(true);
+
+        for (int index = 0; index < options.size(); index++) {
+            auto it = options[index];
+
+            QPushButton *label;
+            if (update) {
+                label = dynamic_cast<QPushButton *>(this->widget()->layout()->itemAt(index)->widget());
+            } else {
+                label = new QPushButton(QString::fromStdWString(it.label));
+                label->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+                connect(label, SIGNAL(clicked()), this, SLOT(onSelectItemClicked()));
+                layout->addWidget(label);
+            }
+            label->setText(QString::fromStdWString(it.label));
+            label->setVisible(!it.isHide);
+            auto aWidget = AWidget();
+            aWidget.setStyleQss("border", "none");
+            aWidget.setStyleQss("font-size", "24px");
+            aWidget.setStyleQss("height", "32px");
+
+            aWidget.setStyleQss("border-top-left-radius", std::to_string(themeConfig.borderRadius) + "px");
+            aWidget.setStyleQss("border-top-right-radius", std::to_string(themeConfig.borderRadius) + "px");
+            aWidget.setStyleQss("border-bottom-left-radius", std::to_string(themeConfig.borderRadius) + "px");
+            aWidget.setStyleQss("border-bottom-right-radius", std::to_string(themeConfig.borderRadius) + "px");
+
+
+            aWidget.setStyleQss("background-color", "rgb(255,255,255)");
+            aWidget.setStyleQss("hover", "background-color", "rgb(245,245,245)");
+            aWidget.setStyleQss("text-align", "left");
+            aWidget.setStyleQss("padding-left", "4px");
+            aWidget.setStyleQss("padding-right", "4px");
+            aWidget.setStyleQss("margin-right", "4px");
+
+            if (it.selected) {
+                {
+                    auto beforeIndex = index - 1;
+                    if (beforeIndex >= 0 && options[beforeIndex].selected) {
+                        aWidget.setStyleQssFource("border-top-left-radius", "0px");
+                        aWidget.setStyleQssFource("border-top-right-radius", "0px");
+                    }
+                }
+                {
+                    auto nextIndex = index + 1;
+                    if (nextIndex < options.size() && options[nextIndex].selected) {
+                        aWidget.setStyleQssFource("border-bottom-left-radius", "0px");
+                        aWidget.setStyleQssFource("border-bottom-right-radius", "0px");
+                    }
+                }
+
+                aWidget.setStyleQssFource("background-color", themeConfig.colorPrimaryBg);
+            }
+            label->setStyleSheet(aWidget.getJoinStyles());
+            label->setProperty("option_label", QString::fromStdWString(it.label));
+            label->setProperty("option_value", QString::fromStdWString(it.value));
+        }
+
+//        auto *verticalSpacer = new QSpacerItem(20, 1, QSizePolicy::Minimum, QSizePolicy::Expanding);
+//        layout->addItem(verticalSpacer);
+        layout->setContentsMargins(0, 0, 0, 0);
+        layout->setSpacing(0);
+        this->setWidgetResizable(true);
     }
 
-    const SelectAttr &Select::getAttr() const {
-        return attr;
+    void SelectArea::onSelectItemClicked() {
+        auto btn = dynamic_cast<QPushButton *>(sender());
+        if (btn) {
+            QString val = btn->property("option_value").toString();
+//            LOG_INFO(val.toStdString())
+            emit selectItemClicked(val);
+        }
     }
 
-    void Select::setAttr(const SelectAttr &selectAttr) {
+    void SelectArea::updateRenderOptions(const SelectActionOptions &options) {
+        this->renderOptions(options, true);
+    }
+
+    SelectWidget::SelectWidget(QWidget *parent) : HWidget(parent) {
+        selectArea_ = new SelectArea();
+        selectArea_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+        connect(selectArea_, &SelectArea::selectItemClicked, this, [this](const QString &val) {
+            emit selectItemClicked(val);
+        });
+        this->addWidget(selectArea_);
         auto themeConfig = ThemeConfig::Instance();
-        this->attr = selectAttr;
-
-        this->setFixedWidth(this->attr.fixedWidth);
-        this->setFixedHeight(30);
-
-        base_->setFixedWidth(this->attr.fixedWidth);
-        base_->setFixedHeight(30);
-        base_->setGeometry(QRect(0, 0, base_->width(), base_->height()));
-
-        auto str =
-                ":!hover{border: 1px solid " + themeConfig.colorBorder + ";background-color:" + themeConfig.colorBgBase + ";}:hover{border: 1px solid  " +
-                themeConfig.colorPrimary +
-                ";}";
-        base_->setStyleSheet(QString::fromStdString(str));
-        base_->setVisible(true);
-
-
-        this->initFixedShowArea();
-        this->initSelectOptionsArea();
+        this->setStyleQss("border", "1px solid " + themeConfig.colorBorder);
+        this->setStyleQss("border-radius", std::to_string(themeConfig.borderRadiusLG) + "px");
+        this->setStyleQss("background-color", "white");
+        this->setStyleSheet(this->getJoinStyles());
+        int margin = (int) themeConfig.borderRadiusLG / 2;
+        this->setContentsMargins(margin, margin, margin, margin);
     }
 
-    void Select::focusInEvent(QFocusEvent *event) {
-        QWidget::focusInEvent(event);
+    bool SelectWidget::event(QEvent *e) {
+        if (e->type() == QEvent::MouseButtonPress) {
+            auto event = (QMouseEvent *) e;
+            if (event->button() == Qt::LeftButton) {
+                if (!geometry().contains(event->pos())) {
+                    auto gP = this->mapToGlobal(event->pos());
+                    if (this->shouldHide) {
+                        if (!this->shouldHide(gP)) {
+                            this->shouldClose_ = false;
+                            return false;
+                        } else {
+                            this->shouldClose_ = true;
+                        }
+                    } else {
+                        this->shouldClose_ = true;
+                    }
+                }
+            }
+        }
+        return HWidget::event(e);
     }
 
-    void Select::focusOutEvent(QFocusEvent *event) {
-        QWidget::focusOutEvent(event);
+    void SelectWidget::renderOptions(const SelectActionOptions &options) {
+        this->selectArea_->renderOptions(options);
     }
 
-    void Select::areaClicked() {
+    void SelectWidget::resizeEvent(QResizeEvent *event) {
+        QWidget::resizeEvent(event);
+        this->selectArea_->update();
+    }
+
+    void SelectWidget::updateRenderOptions(const SelectActionOptions &options) {
+        this->selectArea_->updateRenderOptions(options);
+    }
+
+    Select::Select(QWidget *parent) : HWidget(parent) {
+        this->init();
     }
 
 
     void Select::mousePressEvent(QMouseEvent *event) {
-        LOG_INFO("mousePressEvent")
-//        LOG_INFO(this->pos().x());
-//        LOG_INFO(this->pos().y());
-//        LOG_INFO(this->mapToGlobal(QPoint(0, 0)).x())
-//        LOG_INFO(this->mapToGlobal(QPoint(0, 0)).y())
-        selectWidget_->setGeometry(QRect(this->mapToGlobal(QPoint(0, 0)).x(), this->mapToGlobal(QPoint(0, 0)).y() + this->height() + 2,
-                                         this->attr.fixedWidth, this->attr.selectHeight));
-
-        if (selectWidget_->isHidden()) {
-            if (!lastHiddenInFixedArea) {
-                selectWidget_->show();
-            }
-        } else {
-            selectWidget_->hide();
-        }
-        lastHiddenInFixedArea = false;
-//        selectWidget_->show();
-//        if (selectWidget_->isHidden()) {
-//            selectWidget_->show();
-//        } else {
-//            selectWidget_->hide();
-//        }
-        QWidget::mousePressEvent(event);
-    }
-
-    void Select::mouseReleaseEvent(QMouseEvent *event) {
-        LOG_INFO("mouseReleaseEvent")
-        QWidget::mouseReleaseEvent(event);
-    }
-
-    bool Select::eventFilter(QObject *watched, QEvent *event) {
-        return QObject::eventFilter(watched, event);
-    }
-
-    void Select::initFixedShowArea() {
-        QLayout *layout;
-        auto *oldLayout = base_->layout();
-        if (oldLayout != nullptr) {
-            QLayoutItem *child;
-            while ((child = oldLayout->takeAt(0)) != nullptr) {
-                if (child->widget()) {
-                    child->widget()->setParent(nullptr);//setParent(nullptr),防止删除之后界面不消失
-                    delete child->widget();  //释放
-                }
-                delete child;
-            }
-            layout = oldLayout;
-        } else {
-            layout = new QHBoxLayout(base_);
-
-        }
-        base_->setLayout(layout);
-        auto *spacerItem = new QSpacerItem(1, 1, QSizePolicy::Maximum, QSizePolicy::Minimum);
-
-        layout->setMargin(0);
-        layout->setSpacing(0);
-        if (!this->selectedValues.empty()) {
-            auto *label = new QLabel(base_);
-            label->setText(QString::fromStdWString(this->selectedValues[0].label));
-            label->setStyleSheet(":!hover{color:rgba(0,0,0,0.88);font-size:22px;}");
-
-            layout->addWidget(label);
-        }
-
-//        auto *edit = new QLineEdit(base_);
-//        edit->setFixedWidth(60);
-//        edit->installEventFilter(this);
-//        layout->addWidget(edit);
-
-        layout->addItem(spacerItem);
-    }
-
-    void Select::initSelectOptionsArea() {
-        auto *oldWidget = this->selectWidget_->widget();
-        if (oldWidget != nullptr) {
-            oldWidget->setParent(nullptr);
-            delete oldWidget;
-        }
-        auto *widget = new QWidget();
-        auto *layout = new QVBoxLayout(widget);
-
-        auto themeConfig = ThemeConfig::Instance();
-        for (auto &it: this->attr.options) {
-            auto *label = new QPushButton(QString::fromStdWString(it.label));
-
-            bool select = false;
-            for (const auto &it2: this->selectedValues) {
-                if (it2.value == it.value) {
-                    select = true;
-                    break;
-                }
-            }
-            if (select) {
-                label->setStyleSheet(
-                        QString::fromStdString(
-                                " :!hover{border:none; background-color:" + themeConfig.colorPrimaryBg + "; font-size:24px; line-height:28px;}"  \
-                        "  :hover{border:none; background-color:" + themeConfig.colorPrimaryBg + ";}"
-                        ));
-            } else {
-                label->setStyleSheet(R"(
-    :!hover{border:none; background-color:rgb(255,255,255); font-size:24px; line-height:28px;}
-    :hover{border:none; background-color:rgb(245,245,245);}
-)");
-            }
-
-            label->setProperty("option_label", QString::fromStdWString(it.label));
-            label->setProperty("option_value", QString::fromStdWString(it.value));
-            connect(label, SIGNAL(clicked()), this, SLOT(selectItemClicked()));
-            layout->addWidget(label);
-        }
-        widget->setFixedWidth(this->attr.fixedWidth - 10);
-        auto *verticalSpacer = new QSpacerItem(20, 1, QSizePolicy::Minimum, QSizePolicy::Expanding);
-        layout->addItem(verticalSpacer);
-        layout->setContentsMargins(0, 0, 0, 0);
-        layout->setSpacing(0);
-//        layout->addStretch();
-        this->selectWidget_->setWidget(widget);
-
-    }
-
-    void Select::selectItemClicked() {
-        auto *btn = (QPushButton *) sender();
-        if (btn == nullptr) {
+        wl::HWidget::mousePressEvent(event);
+        if (this->selectHandleClick) {
+            this->selectHandleClick = false;
+            input_->setFocus();
+            input_->grabKeyboard();
             return;
         }
-        auto val = btn->property("option_value").toString().toStdWString();
-        LOG_INFO("aaa << " << btn->property("option_value").toString().toStdString());
-        this->selectedValues.clear();
-        this->selectedValues.emplace_back(btn->property("option_label").toString().toStdWString(), btn->property("option_value").toString().toStdWString());
-        this->initFixedShowArea();
-        emit onSelect(btn->property("option_value").toString());
-        selectWidget_->hide();
-        // 改为手动选择然后改变css
-        this->initSelectOptionsArea();
+        if (!this->geometry().contains(this->mapToParent(event->pos()))) {
+            LOG_INFO("not in")
+            return;
+        }
+        this->updateSelectWidgetPos();
+        this->setFocus();
+        if (selectWidget_->isHidden()) {
+            selectWidget_->show();
+            selectWidget_->clearFocus();
+            this->focus_ = true;
+            input_->setFocus();
+            input_->grabKeyboard();
+        } else {
+            // 没用。当前处于显示的情况下，事件正常情况到不了这里，已经单独处理这种情况
+//            selectWidget_->hide();
+            this->focus_ = false;
+            input_->releaseKeyboard();
+        }
     }
 
-    void Select::OnBlankSpaceClicked(QPoint p) {
-        auto gp = this->mapToGlobal(QPoint(0, 0));
-        auto p2 = p - gp;
-        LOG_INFO("p2:" << p2.x() << "," << p2.y())
-        if (!this->geometry().contains(p2) && !base_->geometry().contains(p2)) {
-            LOG_INFO("not contain")
-            selectWidget_->hide();
-            lastHiddenInFixedArea = false;
-        } else {
-            lastHiddenInFixedArea = true;
-            selectWidget_->hide();
-            LOG_INFO(" contain")
+
+    void Select::setAttrSize(GeneralAttrSize generalAttrSize) {
+        Select::attrSize = generalAttrSize;
+    }
+
+    void Select::updateAttr() {
+        if (!isFirstShow_) {
+            return;
         }
+        this->updateGeometry();
+        auto themeConfig = ThemeConfig::Instance();
+        if (this->focus_) {
+            this->setStyleQss("border", "1px solid " + themeConfig.hoverBorderColor);
+        } else {
+            this->setStyleQss("border", "1px solid " + themeConfig.colorBorder);
+        }
+        auto fixedHeight = themeConfig.controlHeight;
+        text_->setContentsMargins(8, 0, 8, 0);
+        tags_->setContentsMargins(8, 4, 8, 4);
+        rightIcon_->setContentsMargins(8, 4, 8, 4);
+        text_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+        if (this->attrMode == SelectAttrMode::tags || this->attrMode == SelectAttrMode::multiple) {
+            text_->hide();
+            tags_->show();
+        } else {
+            text_->show();
+            tags_->hide();
+        }
+        input_->setVisible(this->attrMode == SelectAttrMode::tags);
+        selectWidget_->setFixedWidth(this->width());
+        auto fontSize = themeConfig.fontSize;
+        this->setStyleQss("border-radius", std::to_string(themeConfig.borderRadius) + "px");
+        if (this->attrSize == GeneralAttrSize::small) {
+            fixedHeight = themeConfig.controlHeightSM;
+            fontSize = themeConfig.fontSizeSM;
+            this->setStyleQss("border-radius", std::to_string(themeConfig.borderRadiusSM) + "px");
+        } else if (this->attrSize == GeneralAttrSize::large) {
+            fixedHeight = themeConfig.controlHeightLG;
+            fontSize = themeConfig.fontSizeLG;
+            this->setStyleQss("border-radius", std::to_string(themeConfig.borderRadiusLG) + "px");
+        }
+        this->setMinimumHeight((int) fixedHeight);
+        for (auto it: this->tagList_) {
+            it->setContentsMargins(1, 1, 1, 1);
+            //    it->setFixedHeight((int) fixedHeight - 8);
+        }
+        auto font = QFont();
+        font.setPixelSize((int) fontSize);
+        input_->setFont(font);
+        input_->setFixedHeight((int) fixedHeight);
+        input_->setStyleSheet("border:none;");
+        this->setContentsMargins(1, 1, 1, 1);
+        this->setStyleSheet(this->getJoinStyles());
+    }
+
+    void Select::paintEvent(QPaintEvent *event) {
+        HWidget::paintEvent(event);
+    }
+
+    void Select::setAttrOptions(const SelectAttrOptions &selectAttrOptions) {
+        this->attrOptions = selectAttrOptions;
+        this->selectActionOptions.clear();
+        for (const auto &it: selectAttrOptions) {
+            this->selectActionOptions.emplace_back(it);
+        }
+        auto op = SelectActionOption();
+        op.isEditing = true;
+        op.isHide = true;
+        this->selectActionOptions.emplace_back(op);
+
+        if (this->selectWidget_ != nullptr) {
+            this->selectWidget_->renderOptions(selectActionOptions);
+        }
+    }
+
+    void Select::resizeEvent(QResizeEvent *event) {
+        HWidget::resizeEvent(event);
+        // TODO 判断如果下部区域显示不下，显示在上部区域
+        //  auto oldPos = QPoint(selectWidget_->geometry().x(), selectWidget_->geometry().y());
+        this->updateSelectWidgetPos();
+        //        selectWidget_->move(newPos - oldPos);
+        LOG_INFO("size:" << event->size().width() << "," << event->size().height())
+        //  LOG_INFO("oldPos:" << oldPos.x() << "," << oldPos.y())
+//        selectWidget_->move()
+        selectWidget_->renderOptions(this->selectActionOptions);
+        this->updateAttr();
+        LOG_INFO("resize")
+    }
+
+    void Select::setAttrMode(SelectAttrMode mode) {
+        Select::attrMode = mode;
+    }
+
+    void Select::onSelectItemClicked(const QString &val) {
+        QString editingText = "";
+        for (auto &it: this->selectActionOptions) {
+            if (val != it.value) {
+                continue;
+            }
+            it.selected = !it.selected;
+            // 编辑的选项
+            if (it.isEditing) {
+                it.isHide = false;
+                // 转为正式的
+                it.isEditing = false;
+                it.isTmp = true;
+                it.selected = true;
+                editingText = val;
+                input_->setText("");
+            }
+            if (it.selected) {
+                this->text_->setText(val);
+                auto find = false;
+                for (const auto &it2: this->selectedValues) {
+                    if (val == it2.value) {
+                        find = true;
+                        break;
+                    }
+                }
+                if (!find) {
+                    this->selectedValues.emplace_back(it);
+                }
+                emit onSelect(val);
+                {
+                    auto tag = new Tag(val);
+                    tag->setAttrCloseIcon(new Icon("CloseOutlined", tag->getPrimaryColor()));
+                    tag->setFixedHeight(this->input_->height());
+                    LOG_INFO(this->input_->height())
+                    connect(tag, &wl::Tag::closed, this, [this, val]() {
+                        LOG_ERROR("onclose clicked")
+                        this->selectChildrenHandleClick = true;
+//                        this->selectHandleClick = true;
+                        this->deleteSelected(val);
+                        selectWidget_->updateRenderOptions(this->selectActionOptions);
+                        emit onDeselect(val);
+                    });
+                    tag->setProperty("value", val);
+                    tagList_.push_back(tag);
+                    this->tags_->insertWidget(tagList_.size() - 1, tag);
+                }
+            } else {
+                emit onDeselect(val);
+                this->deleteSelected(val);
+                selectWidget_->renderOptions(this->selectActionOptions);
+                return ;
+
+            }
+        }
+        if (!editingText.isEmpty()) {
+            auto op = SelectActionOption();
+            op.isEditing = true;
+            op.isHide = true;
+            this->selectActionOptions.push_back(op);
+            for (auto &it: this->selectActionOptions) {
+                if (!it.isEditing) { it.isHide = false; }
+            }
+            selectWidget_->renderOptions(this->selectActionOptions);
+        } else {
+            selectWidget_->updateRenderOptions(this->selectActionOptions);
+        }
+    }
+
+    SelectAttrMode Select::getAttrMode() const {
+        return attrMode;
+    }
+
+    void Select::deleteSelected(const QString &val) {
+        LOG_ERROR("delete:" << val.toStdString())
+        this->text_->setText("");
+        for (auto it2 = selectedValues.begin(); it2 != selectedValues.end();) {
+            if (val == it2->value) {
+                it2 = selectedValues.erase(it2);
+            } else {
+                ++it2;
+            }
+        }
+        if (this->attrMode == SelectAttrMode::multiple || this->attrMode == SelectAttrMode::tags) {
+            for (auto it2 = tagList_.begin(); it2 != tagList_.end();) {
+                auto valTmp = (*it2)->property("value").toString();
+                if (valTmp == val) {
+                    (*it2)->setParent(nullptr);
+                    this->tags_->removeWidget(*it2, false);
+                    it2 = tagList_.erase(it2);
+                } else {
+                    ++it2;
+                }
+            }
+        }
+        for (auto it = selectActionOptions.begin(); it != selectActionOptions.end();) {
+//        for (auto &it: this->selectActionOptions) {
+            if (it->value == val) {
+                it->selected = false;
+            }
+            if (it->isTmp) {
+                it = selectActionOptions.erase(it);
+            } else {
+                ++it;
+            }
+        }
+    }
+
+    void Select::init() {
+        selectWidget_ = new SelectWidget();
+        selectWidget_->setWindowFlags(Qt::Popup);
+        selectWidget_->hide();
+        selectWidget_->shouldHide = [this](QPoint p) {
+            if (geometry().contains(this->mapToParent(this->mapFromGlobal(p)))) {
+                this->focus_ = true;
+                selectChildrenHandleClick = false;
+                this->mouseClick(p);
+                this->selectHandleClick = true;
+                if (!this->selectChildrenHandleClick) {
+                    this->focus_ = false;
+                    return true;
+                }
+                return false;
+            } else {
+                this->focus_ = false;
+                input_->releaseKeyboard();
+                return true;
+            }
+        };
+        connect(selectWidget_, &SelectWidget::blankSpaceClicked, this, [this](QPoint p) {
+            if (geometry().contains(this->mapFromGlobal(p))) {
+                LOG_INFO("in select base")
+            } else {
+                this->focus_ = false;
+            }
+        });
+        selectWidget_->renderOptions(this->selectActionOptions);
+        connect(selectWidget_, &SelectWidget::selectItemClicked, this, &Select::onSelectItemClicked);
+
+        auto themeConfig = ThemeConfig::Instance();
+        this->setStyleQss("border", "1px solid " + themeConfig.colorBorder);
+        this->setStyleQss("hover", "border", "1px solid " + themeConfig.hoverBorderColor);
+        InputAttr inputAttr;
+        input_ = new WLQLineEdit();
+        connect(input_, &WLQLineEdit::textChanged, this, [this](const QString &text) {
+            if (text.isEmpty()) {
+                return;
+            }
+            for (auto &it: this->selectActionOptions) {
+                if (it.isEditing) {
+                    it.isHide = false;
+                    it.value = text.toStdWString();
+                    it.label = text.toStdWString();
+                }
+                if (it.value.find(text.toStdWString()) == std::wstring::npos) {
+                    it.isHide = true;
+                } else {
+                    it.isHide = false;
+                }
+            }
+            selectWidget_->updateRenderOptions(this->selectActionOptions);
+            selectWidget_->show();
+            // TODO 改变位置
+
+        });
+        text_ = new Text("");
+        tags_ = new Flex();
+        tags_->setStyleQss("border", "none");
+
+        tags_->addWidget(input_);
+        tags_->setStyleSheet(tags_->getJoinStyles());
+        rightIcon_ = new HWidget();
+        rightIcon_->setFixedSize(12, 12);
+        rightIcon_->setStyleQss("border", "none");
+        rightIcon_->setStyleSheet(rightIcon_->getJoinStyles());
+
+        text_->setFixed();
+        this->addWidget(text_);
+        this->addWidget(tags_);
+        this->addWidget(rightIcon_);
+        this->setVisible(true);
+        isFirstShow_ = true;
+        this->updateAttr();
+    }
+
+    void Select::updateSelectWidgetPos() {
+        auto newPos = QPoint(this->mapToGlobal(QPoint(0, 0)).x(),
+                             this->mapToGlobal(QPoint(0, 0)).y() + this->height() + 2);
+        selectWidget_->setGeometry(QRect(newPos.x(), newPos.y(), this->width(), this->selectHeight));
     }
 }

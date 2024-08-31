@@ -23,11 +23,14 @@ namespace wl {
         success,
         warning,
         danger,
+        error = danger,
+        processing,
     };
     enum class GeneralAttrTypeDirection {
         horizontal,
         vertical,
     };
+
 
     class GeneralAttr {
     public:

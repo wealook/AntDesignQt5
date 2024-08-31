@@ -13,9 +13,13 @@ namespace wl {
     public:
         explicit HWidget(QWidget *parent = nullptr, bool spacer = false);
 
+        ~HWidget() override = default;
+
         void paintEvent(QPaintEvent *event) override;
 
-        void addWidget(QWidget *wid);
+        virtual void addWidget(QWidget *wid);
+
+        void removeWidget(QWidget *wid, bool isDelete = false);
 
         void enterEvent(QEvent *event) override;
 
@@ -26,6 +30,10 @@ namespace wl {
         void mouseReleaseEvent(QMouseEvent *event) override;
 
         void setFixed();
+
+        void setStyleSheet(const QString &styleSheet);
+
+        void mouseClick(QPoint globalPos);
 
         std::function<void(QEvent *event)> enterEventCB = nullptr;
         std::function<void(QEvent *event)> leaveEventCB = nullptr;

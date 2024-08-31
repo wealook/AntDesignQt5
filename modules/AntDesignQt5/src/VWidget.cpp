@@ -6,11 +6,14 @@ wl::VWidget::VWidget(QWidget *parent) : QWidget(parent) {
     this->setLayout(ly);
     ly->setSpacing(0);
     ly->setMargin(0);
-    ly->addSpacerItem(new QSpacerItem(1, 1, QSizePolicy::Expanding, QSizePolicy::Minimum));
+//    this->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+    ly->addSpacerItem(new QSpacerItem(1, 1, QSizePolicy::Minimum, QSizePolicy::Expanding));
     this->setStyleSheet("border:none;");
+//    this->setStyleSheet("border:1px solid green;");
 }
 
 void wl::VWidget::addWidget(QWidget *wid) {
+//    wid->setParent(this);
     auto *ly = dynamic_cast<QVBoxLayout *>(this->layout());
-    ly->insertWidget(ly->count(), wid);
+    ly->insertWidget(ly->count() - 1, wid);
 }

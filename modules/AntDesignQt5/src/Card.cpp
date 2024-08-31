@@ -10,16 +10,17 @@
 #include "Icon.h"
 #include "Title.h"
 #include "Text.h"
+#include "qevent.h"
 
 namespace wl {
 
-    Card::Card(QWidget *parent) : QWidget(parent) {
+    Card::Card(QWidget *parent) : QWidget(parent), AWidget() {
         ThemeConfig themeConfig = ThemeConfig::Instance();
         this->setStyleQss("QWidget", "border-radius", std::to_string(themeConfig.borderRadiusLG) + "px");
         this->setStyleQss("QWidget", "border", "1px solid " + themeConfig.colorBorder);
-        this->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+//        this->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
         this->setMinimumWidth(100);
-//        this->setMinimumHeight(600);
+//        this->setMinimumHeight(300);
         auto ly = new QVBoxLayout(this);
         ly->setSpacing(2);
         ly->setMargin(0);
@@ -28,20 +29,12 @@ namespace wl {
         this->extra_->hide();
 
         this->content_ = new QWidget(this);
-        this->content_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
         auto *contentLayout = new QVBoxLayout(content_);
-//
-//        contentLayout->setMargin(10);
-//        contentLayout->setSpacing(0);
-//
-//        contentLayout->addWidget(new QPushButton("aaaaaaa"));
-//        contentLayout->addWidget(new QPushButton("aaaaaaa"));
-//        contentLayout->addWidget(new Title("测试 h1", 1, this));
-//        contentLayout->addWidget(new Title("测试 h2", 2, this));
-//        contentLayout->addWidget(new Title("测试 h3", 3, this));
-//        contentLayout->addWidget(new Title("测试 h4", 4, this));
-        ly->addWidget(extra_);
+        this->content_->setLayout(contentLayout);
+//        this->content_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
         ly->addWidget(content_);
+//        ly->addSpacerItem(new QSpacerItem(1, 1, QSizePolicy::Minimum, QSizePolicy::Expanding));
+
         this->setStyleSheet(this->getJoinStyles());
     }
 
@@ -64,7 +57,7 @@ namespace wl {
             }
         }
         this->contentWidget_ = widget;
-//        this->contentWidget_->setParent(this->content_);
+        this->contentWidget_->setParent(this->content_);
         this->content_->layout()->addWidget(this->contentWidget_);
 
     }

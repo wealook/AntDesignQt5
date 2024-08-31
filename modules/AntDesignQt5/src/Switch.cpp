@@ -10,10 +10,9 @@
 
 namespace wl {
 
-    Switch::Switch(SwitchAttr attr, QWidget *parent) : HWidget(parent) {
+    Switch::Switch(SwitchAttr attr, QWidget *parent) : attr(attr), HWidget(parent) {
         this->setFixed();
         connect(this, SIGNAL(clicked()), this, SLOT(onClicked()));
-        this->updateAttr(attr);
         this->enterEventCB = [this](QEvent *event) {
             center->setStyleQssFource("background-color", "white");
             center->setStyleSheet(center->getJoinStyles());
@@ -23,6 +22,17 @@ namespace wl {
             center->setStyleQssFource("background-color", "white");
             center->setStyleSheet(center->getJoinStyles());
         };
+        center = new HWidget();
+        left = new HWidget();
+        right = new HWidget();
+        if (this->attr.checkedChildren) {
+            left->addWidget(this->attr.checkedChildren);
+        }
+        if (this->attr.unCheckedChildren) {
+            right->addWidget(this->attr.unCheckedChildren);
+        }
+        this->updateAttr();
+
 //        animation->setStartValue(QVariant(Qt::blue)); // 按钮按下时的颜色
 //        animation->setEndValue(Qt::red);   // 按钮释放时的颜色
 //        connect(this, SIGNAL(clicked()), animation, &QPropertyAnimation::start);
@@ -44,14 +54,14 @@ namespace wl {
         LOG_INFO("onClicked")
         if (!this->attr.disabled) {
             attr.checked = !attr.checked;
-            this->updateAttr(attr);
+            this->updateAttr();
             this->enterEvent(nullptr);
         }
+
         emit changed(attr.checked);
     }
 
-    void Switch::updateAttr(SwitchAttr attrPa) {
-        this->attr = attrPa;
+    void Switch::updateAttr() {
         auto themeConfig = ThemeConfig::Instance();
         if (this->attr.size == GeneralAttrSize::small) {
             this->setFixedHeight(16);
@@ -63,33 +73,22 @@ namespace wl {
         auto h = this->height();
         auto parentRadius = std::to_string(h / 2) + "px";
         this->setStyleQss("border-radius", parentRadius);
-        if (!center) {
-            center = new HWidget();
-//            auto *animation = new QPropertyAnimation(center, "pos");
-//            animation->setDuration(1000);
-        }
-        if (!left && !right) {
-            left = new HWidget();
-            if (this->attr.checkedChildren) {
-                left->addWidget(this->attr.checkedChildren);
-            }
-            left->setStyleQss("padding-left", parentRadius);
-            left->setStyleSheet(left->getJoinStyles());
-            right = new HWidget();
-            if (this->attr.unCheckedChildren) {
-                right->addWidget(this->attr.unCheckedChildren);
-            }
-            right->setStyleQss("padding-right", parentRadius);
-            right->setStyleSheet(right->getJoinStyles());
 
-            this->addWidget(left);
-            this->addWidget(center);
-            this->addWidget(right);
-        }
+        left->setContentsMargins(h / 2, 2, 2, 2);
+
+//        left->setStyleQss("padding-left", parentRadius);
+        left->setStyleSheet(left->getJoinStyles());
+
+//        right->setStyleQss("padding-right", parentRadius);
+        right->setContentsMargins(2, 2, h / 2, 2);
+
+        right->setStyleSheet(right->getJoinStyles());
+
+        this->addWidget(left);
+        this->addWidget(center);
+        this->addWidget(right);
 
         if (this->attr.checked) {
-//            this->setStyleQssFource("padding-left", parentRadius);
-//            this->setStyleQssFource("padding-right", parentRadius);
             center->setStyleQssFource("margin-left", "0px");
             center->setStyleQssFource("margin-right", "2px");
             if (this->attr.disabled) {
@@ -99,8 +98,6 @@ namespace wl {
                 this->setStyleQss("hover", "background-color", themeConfig.colorPrimaryHover);
             }
         } else {
-//            this->setStyleQssFource("padding-left", parentRadius);
-//            this->setStyleQssFource("padding-right", parentRadius);
             center->setStyleQssFource("margin-left", "2px");
             center->setStyleQssFource("margin-right", "0px");
             center->setStyleQss("background-color", "rgba(0,0,0,0)");

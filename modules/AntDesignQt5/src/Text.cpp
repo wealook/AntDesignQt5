@@ -2,30 +2,34 @@
 #include "Text.h"
 #include "QLayout"
 #include "QLabel"
-#include "AWidget.h"
 #include "ThemeConfig.h"
 
 namespace wl {
 
-    Text::Text(const QString &text, QWidget *parent) : QWidget(parent) {
-        this->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
+    Text::Text(const QString &text, QWidget *parent) : HWidget(parent) {
+//        this->setFixed();
         this->setMinimumWidth(10);
-        auto *ly = new QHBoxLayout(this);
-        ly->setSpacing(0);
-        ly->setMargin(0);
         label_ = new QLabel(text);
         label_->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-        ly->addWidget(label_);
+        this->addWidget(label_);
+        // debug
+//        this->setStyleQss("border","1px solid blue");
+        this->setStyleQss("border", "none");
+        this->setStyleSheet(this->getJoinStyles());
     }
 
     void Text::setAttr(const TextAttr &textAttr) {
         this->attr_ = textAttr;
         auto themeConfig = ThemeConfig::Instance();
         AWidget aWidget;
+
+        aWidget.setStyleQss("border-radius", "none");
         aWidget.setStyleQss("padding", "0px");
         aWidget.setStyleQss("margin", "0px");
-        aWidget.setStyleQss("height", "24px");
-        aWidget.setStyleQss("font-size", "16px");
+        aWidget.setStyleQss("text-align", "left");
+//        aWidget.setStyleQss("height", "24px");
+
+        aWidget.setStyleQss("font-size", std::to_string(attr_.fontSize) + "px");
         if (this->attr_.type == GeneralAttrColorType::secondary) {
             aWidget.setStyleQss("color", themeConfig.colorTextSecondary);
         } else if (this->attr_.type == GeneralAttrColorType::success) {
@@ -67,7 +71,20 @@ namespace wl {
     }
 
     void Text::mousePressEvent(QMouseEvent *event) {
-        QWidget::mousePressEvent(event);
+        wl::HWidget::mousePressEvent(event);
         emit clicked();
+    }
+
+    void Text::paintEvent(QPaintEvent *event) {
+        HWidget::paintEvent(event);
+        this->setAttr(this->attr_);
+    }
+
+    void Text::setText(const QString &text) {
+        this->label_->setText(text);
+    }
+
+    QString Text::getText() {
+        return this->label_->text();
     }
 }
