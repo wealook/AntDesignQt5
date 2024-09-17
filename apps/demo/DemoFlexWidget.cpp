@@ -39,11 +39,10 @@ DemoFlexWidget::DemoFlexWidget(QWidget *parent) : DemoContentWidget(parent) {
 
         auto *input = new wl::WLQLineEdit();
         flex->addWidget(input);
-        auto *btn = new wl::Button(
-                "Primary Button",
-                wl::ButtonAttr(wl::ButtonAttrType::primary, wl::GeneralAttrSize::middle, wl::GeneralAttrShape::round),
-                this
-        );
+        auto *btn = new wl::Button("Primary Button", this);
+        btn->setAttrType(wl::ButtonAttrType::primary);
+        btn->setAttrSize(wl::GeneralAttrSize::middle);
+        btn->setAttrShape(wl::GeneralAttrShape::round);
         connect(btn, &wl::Button::clicked, this, [flex]() {
             auto *tag = new wl::Tag("中文TAG");
             tag->setMinimumHeight(28);
@@ -52,7 +51,6 @@ DemoFlexWidget::DemoFlexWidget(QWidget *parent) : DemoContentWidget(parent) {
 
         wi->addWidget(btn);
         wi->addWidget(flex);
-
 //        wi->addWidget(hwi);
         wi->addWidget(wl::Divider::createLeft("基本使用"));
         wi->addWidget(new wl::Text("基本使用。"));

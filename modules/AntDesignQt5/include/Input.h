@@ -14,15 +14,15 @@ namespace wl {
     public:
     Q_OBJECT
     public:
-        explicit Input(const InputAttr &inputAttr, QWidget *parent = nullptr);
+        explicit Input(QWidget *parent = nullptr);
 
-        const InputAttr &getAttr() const;
+        void resizeEvent(QResizeEvent *event) override;
 
-        void setAttr(const InputAttr &inputAttr);
+        void updateAttr();
 
         QSize sizeHint() const override;
 
-    protected       slots:
+    protected slots:
 
 
         void editFocusChange(QFocusEvent *e);
@@ -32,12 +32,47 @@ namespace wl {
         void textChanged(const QString &);
 
     private:
-        InputAttr attr;
 
         bool editFocus = false;
 
-        HWidget *editWidget;
-        WLQLineEdit *edit;
+        HWidget *editWidget_ = nullptr;
+        WLQLineEdit *edit_ = nullptr;
+        HWidget *beforeWidget_ = nullptr;
+        HWidget *afterWidget_ = nullptr;
+
+        HWidget *prefixWidget_ = nullptr;
+        HWidget *suffixWidget_ = nullptr;
+    private:
+        GeneralAttrSize attrSize = GeneralAttrSize::middle;
+        QWidget *attrAddonBefore = nullptr;
+        QWidget *attrAddonAfter = nullptr;
+
+        InputAttrStatus attrStatus = InputAttrStatus::none;
+        bool attrDisabled = false;
+        QWidget *attrPrefix = nullptr;
+        QWidget *attrSuffix = nullptr;
+
+        QString attrPlaceholder;
+        InputAttrVariant attrVariant = InputAttrVariant::outlined;
+
+    public:
+        void setAttrSize(GeneralAttrSize generalAttrSize);
+
+        void setAttrAddonBefore(QWidget *addonBefore);
+
+        void setAttrAddonAfter(QWidget *addonAfter);
+
+        void setAttrStatus(InputAttrStatus status);
+
+        void setAttrDisabled(bool disabled);
+
+        void setAttrPrefix(QWidget *prefix);
+
+        void setAttrSuffix(QWidget *suffix);
+
+        void setAttrPlaceholder(const QString &placeholder);
+
+        void setAttrVariant(InputAttrVariant variant);
     };
 
 }

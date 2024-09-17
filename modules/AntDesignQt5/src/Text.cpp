@@ -7,63 +7,72 @@
 namespace wl {
 
     Text::Text(const QString &text, QWidget *parent) : HWidget(parent) {
-//        this->setFixed();
         this->setMinimumWidth(10);
         label_ = new QLabel(text);
         label_->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
         this->addWidget(label_);
-        // debug
+        auto theme = ThemeConfig::Instance();
+        this->setStyleQss("font-family", theme.fontFamily);
 //        this->setStyleQss("border","1px solid blue");
-        this->setStyleQss("border", "none");
         this->setStyleSheet(this->getJoinStyles());
+        this->updateAttr();
     }
 
     void Text::setAttr(const TextAttr &textAttr) {
         this->attr_ = textAttr;
         auto themeConfig = ThemeConfig::Instance();
-        AWidget aWidget;
 
-        aWidget.setStyleQss("border-radius", "none");
-        aWidget.setStyleQss("padding", "0px");
-        aWidget.setStyleQss("margin", "0px");
-        aWidget.setStyleQss("text-align", "left");
-//        aWidget.setStyleQss("height", "24px");
+        this->setStyleQss("border-radius", "none");
+        this->setStyleQss("padding", "0px");
+        this->setStyleQss("margin", "0px");
 
-        aWidget.setStyleQss("font-size", std::to_string(attr_.fontSize) + "px");
+//        this->setStyleQss("text-align", "center");
+//         this->setStyleQss("height", "24px");
+
+        this->setStyleQss("font-size", std::to_string(attr_.fontSize) + "px");
         if (this->attr_.type == GeneralAttrColorType::secondary) {
-            aWidget.setStyleQss("color", themeConfig.colorTextSecondary);
+            this->setStyleQss("color", themeConfig.colorTextSecondary);
         } else if (this->attr_.type == GeneralAttrColorType::success) {
-            aWidget.setStyleQss("color", themeConfig.colorSuccessText);
+            this->setStyleQss("color", themeConfig.colorSuccessText);
         } else if (this->attr_.type == GeneralAttrColorType::warning) {
-            aWidget.setStyleQss("color", themeConfig.colorWarningText);
+            this->setStyleQss("color", themeConfig.colorWarningText);
         } else if (this->attr_.type == GeneralAttrColorType::danger) {
-            aWidget.setStyleQss("color", themeConfig.colorErrorText);
+            this->setStyleQss("color", themeConfig.colorErrorText);
         } else {
         }
         if (this->attr_.mark) {
-            aWidget.setStyleQss("background-color", themeConfig.colorBgTextMark);
+            this->setStyleQss("background-color", themeConfig.colorBgTextMark);
         }
         if (this->attr_.code) {
-            aWidget.setStyleQss("background-color", themeConfig.colorBgTextCode);
+            this->setStyleQss("background-color", themeConfig.colorBgTextCode);
         }
         if (this->attr_.keyboard) {
-            aWidget.setStyleQss("background-color", themeConfig.colorBgTextKeyword);
+            this->setStyleQss("background-color", themeConfig.colorBgTextKeyword);
         }
         if (this->attr_.underline) {
-            aWidget.setStyleQss("text-decoration", "underline");
+            this->setStyleQss("text-decoration", "underline");
         }
         if (this->attr_.destroy) {
-            aWidget.setStyleQss("text-decoration", "line-through");
+            this->setStyleQss("text-decoration", "line-through");
         }
         if (this->attr_.strong) {
-            aWidget.setStyleQss("font-weight", "600");
+            this->setStyleQss("font-weight", "600");
         }
         if (this->attr_.italic) {
-            aWidget.setStyleQss("font-style", "italic");
+            this->setStyleQss("font-style", "italic");
         }
         if (this->attr_.link) {
         }
-        label_->setStyleSheet(aWidget.getJoinStyles());
+        label_->setStyleSheet(this->getJoinStyles());
+        if (this->existStyleQss("!hover", "text-align")) {
+            if (this->getStyleQss("!hover", "text-align") == "left") {
+                label_->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+            } else if (this->getStyleQss("!hover", "text-align") == "center") {
+                label_->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+            } else if (this->getStyleQss("!hover", "text-align") == "right") {
+                label_->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+            }
+        }
     }
 
     Text::Text(const QString &text, const TextAttr &textAttr, QWidget *parent) : Text(text, parent) {
@@ -86,5 +95,9 @@ namespace wl {
 
     QString Text::getText() {
         return this->label_->text();
+    }
+
+    void Text::updateAttr() {
+        this->setAttr(this->attr_);;
     }
 }

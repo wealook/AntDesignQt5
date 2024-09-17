@@ -2,7 +2,9 @@
 
 基于Qt5&& c++17&& [AntDesign](https://ant.design/index-cn)设计风格实现的UI组件库
 
-下载[Windows Demo](https://antdesignqt5.wealook.com/disk-files/release/antdesignqt5-demo-alpha-20240816.zip)体验
+下载[Windows Demo](https://antdesignqt5.wealook.com/disk-files/release/antdesignqt5-demo-alpha-20240816.zip)体验 
+
+[在线文档](https://antdesignqt5.wealook.com/doc/guide/introduce)
 
 ### 目的
 

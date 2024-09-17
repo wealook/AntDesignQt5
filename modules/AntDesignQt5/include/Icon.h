@@ -12,9 +12,17 @@ namespace wl {
 
     Q_OBJECT
     public:
-        Icon(const QString &file, QWidget *parent = nullptr);
+        explicit Icon(QWidget *parent = nullptr);
 
-        Icon(const QString &label, const QColor &color, QWidget *parent = nullptr);
+        explicit Icon(const QString &file, QWidget *parent = nullptr);
+
+        explicit Icon(const QString &label, const QColor &color, QWidget *parent = nullptr);
+
+        void loadBaseSvg(const QString &label, const QColor &color);
+
+        void loadBaseSvg(const QString &label);
+
+        void changeColor(const QColor &color);
 
         void resizeEvent(QResizeEvent *event) override;
 
@@ -39,6 +47,7 @@ namespace wl {
     private:
         QPixmap originPixmap_;
         QPixmap showPixMap_;
+        QString svgLabel_;
     };
 
 

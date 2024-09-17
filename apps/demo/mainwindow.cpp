@@ -30,6 +30,9 @@
 #include "DemoSwitchWidget.h"
 #include "DemoTagWidget.h"
 #include "DemoFlexWidget.h"
+#include "DemoDatePickerWidget.h"
+#include "DemoTableWidget.h"
+#include "DemoPaginationWidget.h"
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow) {
     ui->setupUi(this);
@@ -46,7 +49,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     this->widgetsMap["switch"] = new DemoSwitchWidget();
     this->widgetsMap["tag"] = new DemoTagWidget();
     this->widgetsMap["flex"] = new DemoFlexWidget();
-//    this->widgetsMap["icon"] = new DemoIconWidget();
+    this->widgetsMap["datePicker"] = new DemoDatePickerWidget();
+    this->widgetsMap["table"] = new DemoTableWidget();
+    this->widgetsMap["pagination"] = new DemoPaginationWidget();
+    this->widgetsMap["icon"] = new DemoIconWidget();
 
     baseLayout_ = new wl::Layout(this);
     auto *layout2 = new wl::Layout(this);
@@ -64,9 +70,14 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     {
         auto tmpItems = wl::MenuItem("通用", "general");
         tmpItems.children.emplace_back("Button按钮", "button");
-        tmpItems.children.emplace_back("FloatButton悬浮按钮", "general-button");
+//        tmpItems.children.emplace_back("FloatButton悬浮按钮", "general-button");
         tmpItems.children.emplace_back("Icon图标", "icon");
         tmpItems.children.emplace_back("Typography排版", "typography");
+        menu->menuItems.push_back(tmpItems);
+    }
+    {
+        auto tmpItems = wl::MenuItem("导航", "nav");
+        tmpItems.children.emplace_back("Pagination分页", "pagination");
         menu->menuItems.push_back(tmpItems);
     }
     {
@@ -81,6 +92,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     {
         auto tmpItems = wl::MenuItem("数据录入", "data-input");
         tmpItems.children.emplace_back("Checkbox多选框", "checkbox");
+        tmpItems.children.emplace_back("DatePicker日期选择", "datePicker");
         tmpItems.children.emplace_back("Input输入框", "input");
         tmpItems.children.emplace_back("Radio 单选框", "radio");
         tmpItems.children.emplace_back("Select 选择器", "select");
@@ -91,27 +103,33 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
         auto tmpItems = wl::MenuItem("数据展示", "data-show");
         tmpItems.children.emplace_back("Card卡片", "card");
         tmpItems.children.emplace_back("Tag 标签", "tag");
+        tmpItems.children.emplace_back("Table 表格", "table");
         menu->menuItems.push_back(tmpItems);
 
     }
 
-    for (int index = 0; index < 5; index++) {
-        auto firstItems = wl::MenuItem("Test " + QString::fromStdString(std::to_string(index)), "select-" + QString::fromStdString(std::to_string(index)));
+    for (int index = 0; index < 0; index++) {
+        auto firstItems = wl::MenuItem("Test " + QString::fromStdString(std::to_string(index)),
+                                       "select-" + QString::fromStdString(std::to_string(index)));
 
         if (index % 2 == 0) {
             menu->menuItems.push_back(firstItems);
             continue;
         }
         for (int i = 0; i < 3; ++i) {
-            auto secondItems = wl::MenuItem("second " + QString::fromStdString(std::to_string(index) + "_" + std::to_string(i)),
-                                            "select-" + QString::fromStdString(std::to_string(index) + "_" + std::to_string(i)));
+            auto secondItems = wl::MenuItem(
+                    "second " + QString::fromStdString(std::to_string(index) + "_" + std::to_string(i)),
+                    "select-" + QString::fromStdString(std::to_string(index) + "_" + std::to_string(i)));
             if (i % 2 == 0) {
                 firstItems.children.push_back(secondItems);
                 continue;
             }
             for (int j = 0; j < 3; ++j) {
-                secondItems.children.emplace_back("third " + QString::fromStdString(std::to_string(index) + "_" + std::to_string(i) + "_" + std::to_string(j)),
-                                                  "select-" + QString::fromStdString(std::to_string(index) + "_" + std::to_string(i) + "_" + std::to_string(j)));
+                secondItems.children.emplace_back("third " + QString::fromStdString(
+                                                          std::to_string(index) + "_" + std::to_string(i) + "_" + std::to_string(j)),
+                                                  "select-" + QString::fromStdString(
+                                                          std::to_string(index) + "_" + std::to_string(i) + "_" +
+                                                          std::to_string(j)));
             }
             firstItems.children.push_back(secondItems);
         }

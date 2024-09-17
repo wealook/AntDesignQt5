@@ -6,6 +6,7 @@
 namespace wl {
 
     Flex::Flex(HWidget *parent) : HWidget(parent) {
+        this->globalHover = false;
         {
             auto *old = this->layout();
             delete old;
@@ -14,7 +15,7 @@ namespace wl {
         this->setLayout(layout);
         layout->setSpacing(0);
         layout->setMargin(1);
-        this->setStyleSheet("border:1px solid blue;");
+//        this->setStyleSheet("border:1px solid blue;");
     }
 
     void Flex::addWidget(QWidget *wid) {

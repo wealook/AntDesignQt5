@@ -15,6 +15,7 @@ namespace wl {
         explicit Text(const QString &text, const TextAttr &textAttr, QWidget *parent = nullptr);
 
         void setAttr(const TextAttr &textAttr);
+        void updateAttr();
 
         void mousePressEvent(QMouseEvent *event) override;
 

@@ -9,6 +9,7 @@ namespace wl {
 
 
     Divider::Divider(const DividerAttr &attr, QWidget *parent) : QWidget(parent), attr_(attr) {
+        this->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
         auto themeConfig = ThemeConfig::Instance();
         if (attr.type == GeneralAttrTypeDirection::vertical) {
             this->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);

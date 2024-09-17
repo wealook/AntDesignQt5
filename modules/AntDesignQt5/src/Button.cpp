@@ -14,47 +14,45 @@
 namespace wl {
 
 
-    Button::Button(QWidget *parent) : HWidget(parent) {
-    }
-
-
-    void Button::setButtonAttr(const ButtonAttr &aButtonAttr) {
+    void Button::updateAttr() {
+        this->clearStyleQss();
         auto themeConfig = ThemeConfig::Instance();
-        this->buttonAttr = aButtonAttr;
-        auto sizeHeight = wl::getSizeHeight(aButtonAttr.size) + 0;
+        auto sizeHeight = wl::getSizeHeight(this->attrSize) + 0;
         auto sizeHeightFull = sizeHeight + 8;
         this->setWindowFlags(Qt::FramelessWindowHint); // 设置窗口标记来取消默认阴影
 
-        this->setStyleQss("padding", "4px");
-        this->setStyleQss("padding-bottom", "4px");
-        this->setStyleQss("padding-left", "4px");
-        this->setStyleQss("padding-right", "4px");
+        if (this->attrBlock) {
+            this->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+        } else {
+            this->setFixed();
+        }
+        this->setContentsMargins(4, 4, 4, 4);
         QFont font;
         font.setPixelSize(sizeHeight);
         this->setFont(font);
         if (label_) {
             label_->setFont(font);
         }
+        this->label_->setVisible(!this->label_->text().isEmpty());
         this->setMinimumHeight(sizeHeightFull);
         this->setFixedHeight(sizeHeightFull);
         std::string mainColor = themeConfig.colorPrimary;
         std::string mainColorHover = themeConfig.colorPrimaryHover;
-
-        Util::fromCssColor(mainColor);
-        Util::fromCssColor("rgb(1,1,1 )");
-        Util::fromCssColor("rgba(  11 , 13 , 14,123 )");
-        if (aButtonAttr.danger) {
+        if (this->attrDanger) {
             mainColor = themeConfig.colorDanger;
             mainColorHover = themeConfig.colorDangerHover;
         }
-        if (aButtonAttr.shape == GeneralAttrShape::circle) {
+
+        if (this->attrShape == GeneralAttrShape::circle) {
             this->setFixedWidth(sizeHeightFull);
             this->setStyleQss("border-radius", std::to_string(this->height() / 2) + "px");
-        }
-        if (aButtonAttr.shape == GeneralAttrShape::round) {
+        } else if (this->attrShape == GeneralAttrShape::round) {
             this->setStyleQss("border-radius", std::to_string(themeConfig.borderRadius) + "px");
+        } else {
+            this->setStyleQss("border-radius", "none");
         }
-        if (aButtonAttr.type == ButtonAttrType::primary) {
+
+        if (this->attrType == ButtonAttrType::primary) {
             this->setStyleQss("background-color", mainColor);
             this->setStyleQss("color", "#FFFFFF");
             this->setStyleQss("border", "none");
@@ -62,9 +60,7 @@ namespace wl {
             this->setStyleQss("hover", "background-color", mainColorHover);
             this->setStyleQss("hover", "color", "#FFFFFF");
             this->setStyleQss("hover", "border", "none");
-        }
-
-        if (aButtonAttr.type == ButtonAttrType::dashed) {
+        } else if (this->attrType == ButtonAttrType::dashed) {
             this->setStyleQss("background-color", "rgba(255,255,255,0)");
             this->setStyleQss("color", "#000000");
 
@@ -75,33 +71,28 @@ namespace wl {
 
             this->setStyleQss("hover", "color", themeConfig.colorPrimary);
             this->setStyleQss("hover", "border-color", themeConfig.colorPrimary);
-        }
-
-
-        if (aButtonAttr.type == ButtonAttrType::text) {
+        } else if (this->attrType == ButtonAttrType::text) {
             this->setStyleQss("background-color", "rgba(255,255,255,0)");
             this->setStyleQss("color", "rgb(0,0,0)");
             this->setStyleQss("border", "none");
 
             this->setStyleQss("hover", "background-color", themeConfig.colorBgSecondary);
-        }
-        if (aButtonAttr.type == ButtonAttrType::none) {
+        } else if (this->attrType == ButtonAttrType::none) {
             this->setStyleQss("background-color", "rgba(255,255,255,0)");
             this->setStyleQss("color", "#000000");
             this->setStyleQss("border-width", "1px");
             this->setStyleQss("border-style", "solid");
             this->setStyleQss("border-color", themeConfig.colorBorder);
-
+            this->setStyleQss("hover", "background-color", "rgba(255,255,255,0)");
             this->setStyleQss("hover", "color", themeConfig.colorPrimary);
             this->setStyleQss("hover", "border-color", themeConfig.colorPrimary);
-        }
-        if (aButtonAttr.type == ButtonAttrType::link) {
+        } else if (this->attrType == ButtonAttrType::link) {
             this->setStyleQss("border", "none");
             this->setStyleQss("background-color", "rgba(255,255,255,0)");
             this->setStyleQss("color", themeConfig.colorPrimary);
             this->setStyleQss("hover", "color", themeConfig.colorPrimaryHover);
         }
-        if (aButtonAttr.disabled) {
+        if (this->attrDisabled) {
             this->setStyleQss("background-color", themeConfig.colorDisabled);
             this->setStyleQss("color", themeConfig.colorDisabledText);
             this->setStyleQss("border-color", themeConfig.colorDisabledBorder);
@@ -110,36 +101,35 @@ namespace wl {
         }
         this->setStyleSheet(this->getJoinStyles("!hover"));
 //        this->setStyleSheet(this->getJoinStyles());
-        this->setDisabled(aButtonAttr.disabled);
-        if (this->buttonAttr.disabled) {
+        this->setDisabled(this->attrDisabled);
+        if (this->attrDisabled) {
             this->setCursor(Qt::ForbiddenCursor);
         }
 
-        if (this->buttonAttr.icon.has_value()) {
-            if (icon_) {
-                icon_->setParent(nullptr);
-                this->layout()->removeWidget(icon_);
-                delete icon_;
-            }
-            if (iconHover_) {
-                iconHover_->setParent(nullptr);
-                this->layout()->removeWidget(iconHover_);
-                delete iconHover_;
-            }
-            icon_ = new Icon(QString::fromStdString(std::string(magic_enum::enum_name(this->buttonAttr.icon.value()))),
-                             Util::fromCssColor(this->getStyleQss("!hover", "color")));
-            icon_->setFixedSize(sizeHeight - 4, sizeHeight - 4);
-            iconHover_ = new Icon(QString::fromStdString(std::string(magic_enum::enum_name(this->buttonAttr.icon.value()))),
-                                  Util::fromCssColor(this->getStyleQss("hover", "color")));
-            iconHover_->setFixedSize(sizeHeight - 4, sizeHeight - 4);
+
+        if (this->attrIconPosition == ButtonAttrIconPosition::postfix) {
+            this->removeWidget(this->label_);
+            this->removeWidget(this->iconWidget_);
+            this->insertWidget(1, this->label_);
+            this->insertWidget(2, this->iconWidget_);
+        } else {
+            this->removeWidget(this->label_);
+            this->removeWidget(this->iconWidget_);
+            this->insertWidget(1, this->iconWidget_);
+            this->insertWidget(2, this->label_);
         }
+        if (this->attrIcon.has_value()) {
+            this->iconWidget_->setFixedSize(sizeHeight - 4, sizeHeight - 4);
+            this->iconWidget_->setVisible(true);
+            this->icon_->changeColor(Util::fromCssColor(this->getStyleQss("!hover", "color")));
+        } else {
+            this->iconWidget_->setFixedSize(0, 0);
+            this->iconWidget_->setVisible(false);
+        }
+        label_->setAlignment(Qt::AlignCenter);
         this->leaveEvent(nullptr);
-
     }
 
-    const ButtonAttr &Button::getButtonAttr() const {
-        return buttonAttr;
-    }
 
     void Button::mouseMoveEvent(QMouseEvent *e) {
         QPalette palette;
@@ -148,59 +138,36 @@ namespace wl {
 //        QAbstractButton::mouseMoveEvent(e);
     }
 
-    Button::Button(const QString &text, const ButtonAttr &aButtonAttr, QWidget *parent) : HWidget(parent) {
+    Button::Button(const QString &text, QWidget *parent) : HWidget(parent) {
+        this->globalHover = false;
         this->setFixed();
-        this->buttonAttr = aButtonAttr;
-
         this->setMouseTracking(true);
         this->setMinimumWidth(20);
 //        this->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
+        iconWidget_ = new HWidget(this);
         label_ = new QLabel(text);
-        auto *ly =this->layout();
+
+        auto *ly = this->layout();
         ly->setMargin(1);
         ly->addItem(new QSpacerItem(1, 0, QSizePolicy::Expanding, QSizePolicy::Minimum));
+
         if (text.length() == 0) {
             label_->setFixedSize(0, 0);
             ly->setSpacing(0);
         } else {
             ly->setSpacing(4);
         }
+
+        ly->addWidget(iconWidget_);
         ly->addWidget(label_);
         ly->addItem(new QSpacerItem(1, 0, QSizePolicy::Expanding, QSizePolicy::Minimum));
-        this->setButtonAttr(aButtonAttr);
-
+        this->updateAttr();
     }
 
-    bool Button::eventFilter(QObject *watched, QEvent *event) {
-
-        return QObject::eventFilter(watched, event);
-    }
-
-    void Button::mousePressEvent(QMouseEvent *event) {
-        LOG_INFO("click")
-        wl::HWidget::mousePressEvent(event);
-    }
-
-    void Button::mouseReleaseEvent(QMouseEvent *event) {
-        wl::HWidget::mouseReleaseEvent(event);
-    }
-
-    void Button::mouseDoubleClickEvent(QMouseEvent *event) {
-        QWidget::mouseDoubleClickEvent(event);
-    }
 
     void Button::enterEvent(QEvent *event) {
-        if (this->buttonAttr.icon.has_value()) {
-            if (this->layout()->indexOf(icon_) >= 0) {
-                icon_->setParent(nullptr);
-                this->layout()->takeAt(this->layout()->indexOf(icon_));
-            }
-            auto *layout = dynamic_cast<QHBoxLayout *>(this->layout());
-            if (this->buttonAttr.iconPosition == ButtonAttrIconPosition::prefix) {
-                layout->insertWidget(1, iconHover_);
-            } else {
-                layout->insertWidget(2, iconHover_);
-            }
+        if (this->attrIcon.has_value()) {
+            this->icon_->changeColor(Util::fromCssColor(this->getStyleQss("hover", "color")));
         }
         this->setStyleSheet(this->getJoinStyles("hover", false));
 
@@ -223,23 +190,12 @@ namespace wl {
     }
 
     void Button::leaveEvent(QEvent *event) {
-        if (this->buttonAttr.icon.has_value()) {
-            if (this->layout()->indexOf(iconHover_) >= 0) {
-                iconHover_->setParent(nullptr);
-                this->layout()->takeAt(this->layout()->indexOf(iconHover_));
-            }
-            auto *layout = dynamic_cast<QHBoxLayout *>(this->layout());
-            if (this->buttonAttr.iconPosition == ButtonAttrIconPosition::prefix) {
-                layout->insertWidget(1, icon_);
-            } else {
-                layout->insertWidget(2, icon_);
-            }
+        if (this->attrIcon.has_value()) {
+            this->icon_->changeColor(Util::fromCssColor(this->getStyleQss("!hover", "color")));
         }
-//        LOG_INFO("level ")
         this->setStyleSheet(this->getJoinStyles("!hover"));
         auto innerStyles1 = "color:" + this->getStyleQss("!hover", "color") + ";";
         innerStyles1 += "background-color:" + this->getStyleQss("!hover", "background-color") + "; ";
-//        innerStyles1 += "border-radius:" + this->getStyleQss("!hover", "border-radius") + ";";
 
         if (this->layout() != nullptr) {
             QLayoutItem *child;
@@ -255,4 +211,56 @@ namespace wl {
             wl::HWidget::enterEvent(event);
         }
     }
+
+    void Button::setAttrType(ButtonAttrType buttonAttrType) {
+        Button::attrType = buttonAttrType;
+    }
+
+    void Button::setAttrLoading(bool loading) {
+        Button::attrLoading = loading;
+    }
+
+    void Button::setAttrBlock(bool blck) {
+        Button::attrBlock = blck;
+    }
+
+    void Button::setAttrDisabled(bool disabled) {
+        Button::attrDisabled = disabled;
+    }
+
+    void Button::setAttrDanger(bool danger) {
+        Button::attrDanger = danger;
+    }
+
+    void Button::setAttrSize(GeneralAttrSize size) {
+        Button::attrSize = size;
+    }
+
+    void Button::setAttrShape(GeneralAttrShape generalAttrShape) {
+        Button::attrShape = generalAttrShape;
+    }
+
+    void Button::setAttrIcon(const std::optional<IconSvg> &icon) {
+
+        if (this->attrIcon.has_value() && this->attrIcon.value() == icon) {
+            return;
+        }
+        if (icon_ != nullptr) {
+            this->iconWidget_->removeWidget(icon_, true);
+        }
+        this->attrIcon = icon;
+        icon_ = new Icon(QString::fromStdString(std::string(magic_enum::enum_name(this->attrIcon.value()))),
+                         Util::fromCssColor(this->getStyleQss("!hover", "color")), this);
+        iconWidget_->addWidget(icon_);
+    }
+
+    void Button::setAttrIconPosition(ButtonAttrIconPosition position) {
+        Button::attrIconPosition = position;
+    }
+
+    void Button::paintEvent(QPaintEvent *event) {
+        HWidget::paintEvent(event);
+    }
+
+
 }

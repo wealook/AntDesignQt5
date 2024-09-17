@@ -360,7 +360,7 @@ namespace wl {
                 input_->setText("");
             }
             if (it.selected) {
-                this->text_->setText(val);
+                this->text_->setText(QString::fromStdWString(it.label));
                 auto find = false;
                 for (const auto &it2: this->selectedValues) {
                     if (val == it2.value) {
@@ -393,7 +393,7 @@ namespace wl {
                 emit onDeselect(val);
                 this->deleteSelected(val);
                 selectWidget_->renderOptions(this->selectActionOptions);
-                return ;
+                return;
 
             }
         }

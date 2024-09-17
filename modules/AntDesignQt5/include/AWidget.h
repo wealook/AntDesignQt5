@@ -36,6 +36,10 @@ namespace wl {
             this->styles[group][k] = v;
         }
 
+        void clearStyleQss() {
+            this->styles.clear();
+        }
+
         void setStyleQssFource(const std::string &k, const std::string &v) {
             this->setStyleQss("!hover", k, v);
             this->setStyleQss("hover", k, v);

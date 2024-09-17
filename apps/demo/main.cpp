@@ -14,6 +14,8 @@ int main(int argc, char *argv[]) {
 #endif
     wl::Logger::instance().init("occt", static_cast<wl::Logger::LogTarget>(logType), wl::Logger::LogLevel::eLogInfo, "occt");
     QApplication a(argc, argv);
+//    QFont::setHintingPreference(QFont::PreferNoHinting);
+//    QFont::setDefaultHinting();
     MainWindow w;
     w.show();
     return a.exec();

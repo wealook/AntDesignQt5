@@ -15,6 +15,8 @@
 namespace wl {
 
     Card::Card(QWidget *parent) : QWidget(parent), AWidget() {
+        this->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+
         ThemeConfig themeConfig = ThemeConfig::Instance();
         this->setStyleQss("QWidget", "border-radius", std::to_string(themeConfig.borderRadiusLG) + "px");
         this->setStyleQss("QWidget", "border", "1px solid " + themeConfig.colorBorder);

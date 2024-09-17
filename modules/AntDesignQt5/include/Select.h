@@ -165,9 +165,7 @@ namespace wl {
         bool isFirstShow_ = false;
 // 属性
     private:
-//        SelectAttrMode attrMode = SelectAttrMode::none;
-// 默认必须为multiple 或tag否则导致初始化时tag计算尺寸错误，初始化后可以自由切换模式尺寸显示不受影响
-        SelectAttrMode attrMode = SelectAttrMode::multiple;
+        SelectAttrMode attrMode = SelectAttrMode::none;
         SelectAttrOptions attrOptions;
         uint16_t fixedWidth = 300;
         uint16_t selectHeight = 200;

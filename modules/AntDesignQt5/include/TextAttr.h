@@ -23,6 +23,6 @@ namespace wl {
         bool italic = false;
         bool link = false;
 
-        int fontSize = 12;
+        int fontSize = 14;
     };
 }

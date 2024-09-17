@@ -46,17 +46,21 @@ DemoContentWidget::DemoContentWidget(QWidget *parent) : QWidget(parent) {
     widget2->setStyleSheet("border:none;");
 
 //    widget1->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
-    widget2->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+//    widget2->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
     {
         auto *widget21 = new QWidget();
         auto *widget22 = new QWidget();
-        widget21->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-        widget22->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+        widget21->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+        widget22->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
 
 
         layoutLeft_ = new QVBoxLayout();
         layoutRight_ = new QVBoxLayout();
+
+        layoutLeft_->setAlignment(Qt::AlignTop);
+        layoutRight_->setAlignment(Qt::AlignTop);
+
         widget21->setLayout(layoutLeft_);
         widget22->setLayout(layoutRight_);
 
@@ -75,7 +79,9 @@ DemoContentWidget::DemoContentWidget(QWidget *parent) : QWidget(parent) {
     this->setLayout(layout);
     layout->addWidget(widget1);
     layout->addWidget(widget2);
-    layout->addItem(new QSpacerItem(1, 1, QSizePolicy::Minimum, QSizePolicy::Expanding));
+    layout->setAlignment(Qt::AlignTop);
+
+//    layout->addItem(new QSpacerItem(1, 1, QSizePolicy::Minimum, QSizePolicy::Expanding));
 //    widget->setStyleSheet("border:1px solid green ;");
     this->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
