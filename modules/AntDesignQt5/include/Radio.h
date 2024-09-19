@@ -2,7 +2,8 @@
 
 #include "AWidget.h"
 #include "GeneralAttr.h"
-
+#include "HWidget.h"
+#include "Text.h"
 
 namespace wl {
 
@@ -48,51 +49,61 @@ namespace wl {
     };
 
 
-    class RadioAttr {
-
-    public:
-        explicit RadioAttr(QString text, bool defaultChecked = false, bool disabled = false)
-                : text(text), defaultChecked(defaultChecked), disabled(disabled) {
-
-        }
-
-        bool checked = false;
-        bool defaultChecked = false;
-        bool disabled = false;
-        QString text;
-    };
-
-    class RadioGroupAttr {
-    public:
-        std::vector<GeneralAttrOption> options;
-        std::vector<QString> value;
-    };
-
     class Radio : public QWidget, public AWidget {
     Q_OBJECT
     public:
-        explicit Radio(const RadioAttr &attr, QWidget *parent = nullptr);
+
+        explicit Radio(const QString &text, QWidget *parent = nullptr);
 
         void resizeEvent(QResizeEvent *event) override;
 
+
+        void updateAttr();
 
     protected slots:
 
         void onClicked();
 
-    private:
-        RadioAttr attr;
+    signals:
 
+        void onChange(bool val);
+
+    private:
+        RoundRadio *roundRadio_ = nullptr;
+        HWidget *textWidget_ = nullptr;
+        Text *text_ = nullptr;
+    private:
+//        RadioAttr attr;
+        std::optional<bool> attrChecked;
+        bool attrDefaultChecked = false;
+        bool attrDisabled = false;
+        QString attrText;
+    public:
+        const QString &getAttrText() const;
+
+        void setAttrChecked(bool checked);
+
+        void setAttrDefaultChecked(bool defaultChecked);
+
+        void setAttrDisabled(bool disabled);
+
+        void setAttrText(const QString &text);
 
     };
 
     class RadioGroup : public QWidget, public AWidget {
     Q_OBJECT
     public:
-        explicit RadioGroup(const RadioGroupAttr &attr, QWidget *parent = nullptr);
+        explicit RadioGroup(const std::vector<GeneralAttrOption> &attrOptions, QString attrValue, QWidget *parent = nullptr);
+
+    signals:
+
+        void onChange(QString val);
 
     private:
-        RadioGroupAttr attr;
+        std::vector<GeneralAttrOption> attrOptions;
+        QString attrValue;
+        std::vector<Radio *> radioList_;
     };
 
 

@@ -14,21 +14,26 @@ DemoCheckBoxWidget::DemoCheckBoxWidget(QWidget *parent) : DemoContentWidget(pare
         card->setContentWidget(wi);
         this->layoutLeft_->addWidget(card);
 
-        wi->addWidget(new wl::CheckBox(wl::CheckBoxAttr("CheckBox")));
-
+        wi->addWidget(new wl::CheckBox("CheckBox"));
         wi->addWidget(new wl::Br());
-        wi->addWidget(new wl::CheckBox(wl::CheckBoxAttr("")));
+        wi->addWidget(new wl::CheckBox(""));
         wi->addWidget(new wl::Br());
 
-        auto groupAttr = wl::CheckBoxGroupAttr();
         std::vector<wl::GeneralAttrOption> options;
         options.emplace_back("Apple", "Apple");
         options.emplace_back("Pear", "Pear");
         options.emplace_back("Orange", "Orange");
-        groupAttr.options = options;
-        wi->addWidget(new wl::CheckBoxGroup(groupAttr));
+        options.emplace_back("Orange1", "Orange1");
+        options.emplace_back("Orange2", "Orange2");
+        options.emplace_back("Orange3", "Orange3");
+        auto *group = new wl::CheckBoxGroup(options, std::vector<QString>());
+        connect(group, &wl::CheckBoxGroup::onChange, this, [](const std::vector<QString> &attrValue) {
+            for (const auto& it: attrValue) {
+                LOG_INFO(it.toStdString())
+            }
+        });
+        wi->addWidget(group);
         wi->addWidget(new wl::Br());
-
         wi->addWidget(wl::Divider::createLeft("基本用法"));
         wi->addWidget(new wl::Text("简单的 checkbox。"));
 
@@ -39,11 +44,30 @@ DemoCheckBoxWidget::DemoCheckBoxWidget(QWidget *parent) : DemoContentWidget(pare
         card->setContentWidget(wi);
         this->layoutRight_->addWidget(card);
 
-        wi->addWidget(new wl::CheckBox(wl::CheckBoxAttr("", false, false, true)));
-        wi->addWidget(new wl::Br());
-        wi->addWidget(new wl::CheckBox(wl::CheckBoxAttr("", false, true, true)));
-        wi->addWidget(new wl::Br());
-        wi->addWidget(new wl::CheckBox(wl::CheckBoxAttr("", true, false, true)));
+        {
+            auto *box = new wl::CheckBox("CheckBox");
+            box->setAttrDefaultChecked(false);
+            box->setAttrIndeterminate(false);
+            box->setAttrDisabled(true);
+            wi->addWidget(box);
+            wi->addWidget(new wl::Br());
+        }
+        {
+            auto *box = new wl::CheckBox("CheckBox");
+            box->setAttrDefaultChecked(false);
+            box->setAttrIndeterminate(true);
+            box->setAttrDisabled(true);
+            wi->addWidget(box);
+            wi->addWidget(new wl::Br());
+        }
+        {
+            auto *box = new wl::CheckBox("CheckBox");
+            box->setAttrDefaultChecked(true);
+            box->setAttrIndeterminate(false);
+            box->setAttrDisabled(true);
+            wi->addWidget(box);
+            wi->addWidget(new wl::Br());
+        }
 
         wi->addWidget(wl::Divider::createLeft("不可用状态"));
         wi->addWidget(new wl::Text("checkbox 不可用。"));
@@ -54,13 +78,23 @@ DemoCheckBoxWidget::DemoCheckBoxWidget(QWidget *parent) : DemoContentWidget(pare
         auto *card = new wl::Card();
         card->setContentWidget(wi);
         this->layoutRight_->addWidget(card);
-
-        wi->addWidget(new wl::CheckBox(wl::CheckBoxAttr("", false, false, false)));
-        wi->addWidget(new wl::Br());
-        wi->addWidget(new wl::CheckBox(wl::CheckBoxAttr("", false, true, false)));
-        wi->addWidget(new wl::Br());
-        wi->addWidget(new wl::CheckBox(wl::CheckBoxAttr("", true, false, false)));
-
+        {
+            auto *box = new wl::CheckBox("CheckBox");
+            wi->addWidget(box);
+            wi->addWidget(new wl::Br());
+        }
+        {
+            auto *box = new wl::CheckBox("CheckBox");
+            box->setAttrIndeterminate(true);
+            wi->addWidget(box);
+            wi->addWidget(new wl::Br());
+        }
+        {
+            auto *box = new wl::CheckBox("CheckBox");
+            box->setAttrDefaultChecked(true);
+            wi->addWidget(box);
+            wi->addWidget(new wl::Br());
+        }
         wi->addWidget(wl::Divider::createLeft("三种情形"));
         wi->addWidget(new wl::Text("checkbox 。"));
 

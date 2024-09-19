@@ -12,6 +12,7 @@ namespace wl {
     HWidget::HWidget(QWidget *parent, bool spacer) : QWidget(parent), AWidget() {
         auto theme = ThemeConfig::Instance();
         this->setStyleQss("font-family", theme.fontFamily);
+        this->setStyleQss("border", "none");
         globalHoverAttributes.emplace_back("background-color");
         // border 常用场景中可能会有冲突
 //        globalHoverAttributes.emplace_back("border");

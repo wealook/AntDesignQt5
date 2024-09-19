@@ -14,21 +14,24 @@ DemoRadioWidget::DemoRadioWidget(QWidget *parent) : DemoContentWidget(parent) {
         card->setContentWidget(wi);
         this->layoutLeft_->addWidget(card);
 
-        wi->addWidget(new wl::Radio(wl::RadioAttr("Radio")));
+        {
+            auto *radio = new wl::Radio("Radio");
+            wi->addWidget(radio);
+            wi->addWidget(new wl::Br());
+        }
+        {
+            auto *radio = new wl::Radio("");
+            wi->addWidget(radio);
+            wi->addWidget(new wl::Br());
+        }
 
-        wi->addWidget(new wl::Br());
-        wi->addWidget(new wl::Radio(wl::RadioAttr("")));
-        wi->addWidget(new wl::Br());
 
-        auto groupAttr = wl::RadioGroupAttr();
         std::vector<wl::GeneralAttrOption> options;
         options.emplace_back("Apple", "Apple");
         options.emplace_back("Pear", "Pear");
         options.emplace_back("Orange", "Orange");
-        groupAttr.options = options;
-        wi->addWidget(new wl::RadioGroup(groupAttr));
+        wi->addWidget(new wl::RadioGroup(options, "", this));
         wi->addWidget(new wl::Br());
-
         wi->addWidget(wl::Divider::createLeft("基本用法"));
         wi->addWidget(new wl::Text("简单的 Radio。"));
 
@@ -39,9 +42,21 @@ DemoRadioWidget::DemoRadioWidget(QWidget *parent) : DemoContentWidget(parent) {
         card->setContentWidget(wi);
         this->layoutRight_->addWidget(card);
 
-        wi->addWidget(new wl::Radio(wl::RadioAttr("", false, true)));
-        wi->addWidget(new wl::Br());
-        wi->addWidget(new wl::Radio(wl::RadioAttr("", true, true)));
+        {
+            auto *radio = new wl::Radio("Radio");
+            radio->setAttrDefaultChecked(true);
+            radio->setAttrDisabled(true);
+            wi->addWidget(radio);
+            wi->addWidget(new wl::Br());
+        }
+
+        {
+            auto *radio = new wl::Radio("Radio");
+            radio->setAttrDefaultChecked(false);
+            radio->setAttrDisabled(true);
+            wi->addWidget(radio);
+            wi->addWidget(new wl::Br());
+        }
 
         wi->addWidget(wl::Divider::createLeft("不可用状态"));
         wi->addWidget(new wl::Text("Radio 不可用。"));
@@ -53,9 +68,21 @@ DemoRadioWidget::DemoRadioWidget(QWidget *parent) : DemoContentWidget(parent) {
         card->setContentWidget(wi);
         this->layoutRight_->addWidget(card);
 
-        wi->addWidget(new wl::Radio(wl::RadioAttr("", false, false)));
-        wi->addWidget(new wl::Br());
-        wi->addWidget(new wl::Radio(wl::RadioAttr("", true, false)));
+        {
+            auto *radio = new wl::Radio("Radio");
+            radio->setAttrDefaultChecked(true);
+            radio->setAttrDisabled(false);
+            wi->addWidget(radio);
+            wi->addWidget(new wl::Br());
+        }
+
+        {
+            auto *radio = new wl::Radio("Radio");
+            radio->setAttrDefaultChecked(false);
+            radio->setAttrDisabled(false);
+            wi->addWidget(radio);
+            wi->addWidget(new wl::Br());
+        }
 
         wi->addWidget(wl::Divider::createLeft("两种情形"));
         wi->addWidget(new wl::Text("Radio 。"));

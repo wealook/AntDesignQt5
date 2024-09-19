@@ -112,39 +112,37 @@ namespace wl {
     }
 
 
-    CheckBox::CheckBox(const CheckBoxAttr &attr, QWidget *parent) : attr(attr), QWidget(parent) {
+    CheckBox::CheckBox(QWidget *parent) : QWidget(parent) {
         auto *layout = new QHBoxLayout();
         layout->setMargin(0);
         layout->setSpacing(0);
         this->setLayout(layout);
         auto themeConfig = ThemeConfig::Instance();
         QFont font;
-        font.setPixelSize(themeConfig.fontSize);
+        font.setPixelSize((int) themeConfig.fontSize);
 
-        auto *check = new RectCheck();
-        check->setMinimumWidth(16);
-        check->setFixedSize(16, 16);
-        if (this->attr.defaultChecked || this->attr.checked) {
-            check->setState(1);
-        } else if (this->attr.indeterminate) {
-            check->setState(2);
-        }
-        check->setDisabled(this->attr.disabled);
-        connect(check, SIGNAL(clicked()), this, SLOT(onClicked()));
-        layout->addWidget(check);
-        if (!this->attr.text.isEmpty()) {
-            auto widget = new HWidget(this);
-//            widget->setFixed();
-            auto textAttr = TextAttr();
-            textAttr.fontSize = 16;
-            auto *label = new Text(this->attr.text, textAttr);
-            label->setDisabled(this->attr.disabled);
-            widget->addWidget(label);
-            widget->setContentsMargins(8, 0, 8, 0);
-            widget->setStyleSheet(widget->getJoinStyles());
-            connect(widget, SIGNAL(clicked()), this, SLOT(onClicked()));
-            layout->addWidget(widget);
-        }
+        rectCheck_ = new RectCheck();
+        rectCheck_->setMinimumWidth(16);
+        rectCheck_->setFixedSize(16, 16);
+
+//        rectCheck_->setDisabled(this->attr.disabled);
+        connect(rectCheck_, SIGNAL(clicked()), this, SLOT(onClicked()));
+        layout->addWidget(rectCheck_);
+        textWidget_ = new HWidget(this);
+        text_ = new Text("");
+//        text_->setDisabled(this->attr.disabled);
+        textWidget_->addWidget(text_);
+        textWidget_->setContentsMargins(8, 0, 8, 0);
+        textWidget_->setStyleSheet(textWidget_->getJoinStyles());
+        connect(textWidget_, SIGNAL(clicked()), this, SLOT(onClicked()));
+        layout->addWidget(textWidget_);
+        /*
+            if (!this->attr.text.isEmpty()) {
+    //            widget->setFixed();
+                auto textAttr = TextAttr();
+                textAttr.fontSize = 16;
+
+            }*/
         layout->addSpacerItem(new QSpacerItem(1, 1, QSizePolicy::Expanding, QSizePolicy::Minimum));
         this->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     }
@@ -154,8 +152,10 @@ namespace wl {
     }
 
     void CheckBox::onClicked() {
-//        LOG_INFO(sender())
-        auto obj = dynamic_cast<RectCheck *>(this->layout()->itemAt(0)->widget());
+        if (this->attrDisabled) {
+            return;
+        }
+        auto obj = this->rectCheck_;
         if (obj) {
             if (obj->getState() == 2 || obj->getState() == 0) {
                 obj->setState(1);
@@ -163,30 +163,97 @@ namespace wl {
                 obj->setState(0);
             }
         }
-        LOG_INFO("onClicked")
+        emit onChange(obj->getState() != 0);
     }
 
-    CheckBoxGroup::CheckBoxGroup(const CheckBoxGroupAttr &attr, QWidget *parent) : QWidget(parent), attr(attr) {
+    void CheckBox::setAttrChecked(bool checked) {
+        CheckBox::attrChecked = checked;
+        this->updateAttr();
+    }
+
+    void CheckBox::setAttrDefaultChecked(bool defaultChecked) {
+        CheckBox::attrDefaultChecked = defaultChecked;
+        this->updateAttr();
+    }
+
+    void CheckBox::setAttrDisabled(bool disabled) {
+        CheckBox::attrDisabled = disabled;
+        this->updateAttr();
+    }
+
+    void CheckBox::setAttrIndeterminate(bool indeterminate) {
+        CheckBox::attrIndeterminate = indeterminate;
+        this->updateAttr();
+    }
+
+    void CheckBox::setAttrText(const QString &text) {
+        CheckBox::attrText = text;
+        this->updateAttr();
+    }
+
+    void CheckBox::updateAttr() {
+        if (this->attrDefaultChecked || this->attrChecked) {
+            this->rectCheck_->setState(1);
+        } else if (this->attrIndeterminate) {
+            this->rectCheck_->setState(2);
+        }
+        this->text_->setText(this->attrText);
+        this->textWidget_->setVisible(!this->attrText.isEmpty());
+        this->rectCheck_->setDisabled(this->attrDisabled);
+        this->text_->setDisabled(this->attrDisabled);
+    }
+
+    CheckBox::CheckBox(const QString &text, QWidget *parent) : CheckBox(parent) {
+        this->setAttrText(text);
+    }
+
+    const QString &CheckBox::getAttrText() const {
+        return attrText;
+    }
+
+    CheckBoxGroup::CheckBoxGroup(const std::vector<GeneralAttrOption> &options, const std::vector<QString> &value, QWidget *parent)
+            : QWidget(parent), attrOptions(options), attrValue(value) {
         auto *layout = new QHBoxLayout();
         layout->setMargin(0);
         layout->setSpacing(0);
         this->setLayout(layout);
-        layout->addSpacerItem(new QSpacerItem(1, 1, QSizePolicy::Expanding, QSizePolicy::Minimum));
         this->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-
-        auto *wi = new HWidget(nullptr, true);
-        layout->addWidget(wi);
-
-        for (int index = 0; index < this->attr.options.size(); index++) {
+        layout->setAlignment(Qt::AlignLeft);
+        for (int index = 0; index < options.size(); index++) {
             auto *tmp = new HWidget();
-            if (index == this->attr.options.size() - 1) {
+            if (index == options.size() - 1) {
             } else {
-                tmp->setStyleSheet("HWidget::{margin-right:10px}");
+                tmp->setContentsMargins(0, 0, 10, 0);
             }
-//            tmp->addWidget(new CheckBox(this->attr.options[index].label));
-            tmp->addWidget(new CheckBox(CheckBoxAttr(this->attr.options[index].label)));
-            wi->addWidget(tmp);
+            auto *box = new CheckBox(options[index].label);
+            connect(box, &CheckBox::onChange, this, [box, this](bool checked) {
+                if (checked) {
+                    bool find = std::find(this->attrValue.begin(), this->attrValue.end(), box->getAttrText()) != this->attrValue.end();
+                    if (!find) {
+                        this->attrValue.push_back(box->getAttrText());
+                    }
+                } else {
+                    for (auto it = this->attrValue.begin(); it != this->attrValue.end();) {
+                        if ((*it) == box->getAttrText()) {
+                            it = this->attrValue.erase(it);
+                        } else {
+                            ++it;
+                        }
+                    }
+                }
+                emit onChange(this->attrValue);
+            });
+            tmp->addWidget(box);
+            layout->addWidget(tmp);
         }
-//        this->setStyleSheet("border: 1px solid red;");
     }
+
+    void CheckBoxGroup::setAttrOptions(const std::vector<GeneralAttrOption> &attrOptions) {
+        CheckBoxGroup::attrOptions = attrOptions;
+    }
+
+    void CheckBoxGroup::setAttrValue(const std::vector<QString> &attrValue) {
+        CheckBoxGroup::attrValue = attrValue;
+    }
+
 }

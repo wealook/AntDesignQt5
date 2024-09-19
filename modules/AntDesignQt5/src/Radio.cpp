@@ -1,4 +1,6 @@
 #include "Radio.h"
+
+#include <utility>
 #include "HWidget.h"
 #include "QLayout"
 #include "ThemeConfig.h"
@@ -95,7 +97,7 @@ namespace wl {
     }
 
 
-    Radio::Radio(const RadioAttr &attr, QWidget *parent) : attr(attr), QWidget(parent) {
+    Radio::Radio(const QString &text, QWidget *parent) : attrText(text), QWidget(parent) {
         auto *layout = new QHBoxLayout();
         layout->setMargin(0);
         layout->setSpacing(0);
@@ -104,28 +106,25 @@ namespace wl {
         QFont font;
         font.setPixelSize(themeConfig.fontSize);
 
-        auto *check = new RoundRadio();
-        check->setMinimumWidth(16);
-        check->setFixedSize(16, 16);
-        if (this->attr.defaultChecked || this->attr.checked) {
-            check->setState(1);
+        roundRadio_ = new RoundRadio();
+        roundRadio_->setMinimumWidth(16);
+        roundRadio_->setFixedSize(16, 16);
+        /*if (this->attr.defaultChecked || this->attr.checked) {
+            roundRadio_->setState(1);
         }
-        check->setDisabled(this->attr.disabled);
-        connect(check, SIGNAL(clicked()), this, SLOT(onClicked()));
-        layout->addWidget(check);
-        if (!this->attr.text.isEmpty()) {
-            auto widget = new HWidget(this, true);
-            auto textAttr = TextAttr();
-            textAttr.fontSize = 16;
-            auto *label = new Text(this->attr.text, textAttr);
-            label->setDisabled(this->attr.disabled);
-            widget->addWidget(label);
-            widget->setContentsMargins(8, 0, 8, 0);
-            connect(widget, SIGNAL(clicked()), this, SLOT(onClicked()));
-            layout->addWidget(widget);
-        }
+        roundRadio_->setDisabled(this->attr.disabled);*/
+        connect(roundRadio_, SIGNAL(clicked()), this, SLOT(onClicked()));
+        layout->addWidget(roundRadio_);
+
+        text_ = new Text(this->attrText);
+        textWidget_ = new HWidget();
+        textWidget_->setContentsMargins(8, 0, 0, 0);
+        textWidget_->addWidget(text_);
+        connect(textWidget_, SIGNAL(clicked()), this, SLOT(onClicked()));
+        layout->addWidget(textWidget_);
         layout->addSpacerItem(new QSpacerItem(1, 1, QSizePolicy::Expanding, QSizePolicy::Minimum));
         this->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        this->updateAttr();
     }
 
     void Radio::resizeEvent(QResizeEvent *event) {
@@ -133,36 +132,88 @@ namespace wl {
     }
 
     void Radio::onClicked() {
-        LOG_INFO(sender())
+        if (this->attrDisabled) {
+            return;
+        }
         auto obj = dynamic_cast<RoundRadio *>(this->layout()->itemAt(0)->widget());
         if (obj) {
-            if (obj->getState() == 2 || obj->getState() == 0) {
+            if (obj->getState() == 0) {
                 obj->setState(1);
+                this->attrChecked = true;
+                emit onChange(obj->getState() == 1);
             } else {
-                obj->setState(0);
+                // obj->setState(0);
             }
         }
-        LOG_INFO("onClicked")
     }
 
-    RadioGroup::RadioGroup(const RadioGroupAttr &attr, QWidget *parent) : QWidget(parent), attr(attr) {
+    void Radio::setAttrChecked(bool checked) {
+        Radio::attrChecked = checked;
+        this->updateAttr();
+    }
+
+    void Radio::setAttrDefaultChecked(bool defaultChecked) {
+        Radio::attrDefaultChecked = defaultChecked;
+        this->updateAttr();
+    }
+
+    void Radio::setAttrDisabled(bool disabled) {
+        Radio::attrDisabled = disabled;
+        this->updateAttr();
+    }
+
+    void Radio::setAttrText(const QString &text) {
+        Radio::attrText = text;
+        this->updateAttr();
+    }
+
+    void Radio::updateAttr() {
+        if (this->attrChecked.has_value()) {
+            this->roundRadio_->setState(this->attrChecked.value() ? 1 : 0);
+        } else {
+            this->roundRadio_->setState(this->attrDefaultChecked ? 1 : 0);
+        }
+
+        this->textWidget_->setVisible(!this->attrText.isEmpty());
+        this->text_->setText(this->attrText);
+        this->roundRadio_->setDisabled(this->attrDisabled);
+        this->text_->setDisabled(this->attrDisabled);
+    }
+
+    const QString &Radio::getAttrText() const {
+        return attrText;
+    }
+
+    RadioGroup::RadioGroup(const std::vector<GeneralAttrOption> &attrOptions, QString attrValue, QWidget *parent) :
+            QWidget(parent), attrValue(std::move(attrValue)), attrOptions(attrOptions) {
         auto *layout = new QHBoxLayout();
         layout->setMargin(0);
         layout->setSpacing(0);
         this->setLayout(layout);
-        layout->addSpacerItem(new QSpacerItem(1, 1, QSizePolicy::Expanding, QSizePolicy::Minimum));
+        layout->setAlignment(Qt::AlignLeft);
         this->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-
         auto *wi = new HWidget(nullptr, true);
         layout->addWidget(wi);
 
-        for (int index = 0; index < this->attr.options.size(); index++) {
+        for (int index = 0; index < this->attrOptions.size(); index++) {
             auto *tmp = new HWidget();
-            if (index == this->attr.options.size() - 1) {
+            if (index == attrOptions.size() - 1) {
             } else {
-                tmp->setStyleSheet("HWidget::{margin-right:10px}");
+                tmp->setContentsMargins(0, 0, 10, 0);
             }
-            tmp->addWidget(new Radio(RadioAttr(this->attr.options[index].label)));
+            auto *radio = new Radio(this->attrOptions[index].label);
+            this->radioList_.push_back(radio);
+            connect(radio, &Radio::onChange, this, [radio, this](bool checked) {
+                if (checked) {
+                    for (auto it: this->radioList_) {
+                        if ((*it).getAttrText() != radio->getAttrText()) {
+                            it->setAttrChecked(false);
+                        }
+                    }
+                }
+                emit onChange(radio->getAttrText());
+            });
+            tmp->addWidget(radio);
             wi->addWidget(tmp);
         }
     }

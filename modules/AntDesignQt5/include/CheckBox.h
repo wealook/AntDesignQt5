@@ -3,6 +3,8 @@
 #include "QCheckBox"
 #include "AWidget.h"
 #include "GeneralAttr.h"
+#include "HWidget.h"
+#include "Text.h"
 
 namespace wl {
 
@@ -48,52 +50,69 @@ namespace wl {
     };
 
 
-    class CheckBoxAttr {
-
-    public:
-        explicit CheckBoxAttr(QString text, bool defaultChecked = false, bool indeterminate = false, bool disabled = false)
-                : text(text), defaultChecked(defaultChecked), indeterminate(indeterminate), disabled(disabled) {
-
-        }
-
-        bool checked = false;
-        bool defaultChecked = false;
-        bool disabled = false;
-        bool indeterminate = false;
-        QString text;
-    };
-
-    class CheckBoxGroupAttr {
-    public:
-        std::vector<GeneralAttrOption> options;
-        std::vector<QString> value;
-    };
-
     class CheckBox : public QWidget, public AWidget {
     Q_OBJECT
     public:
-        explicit CheckBox(const CheckBoxAttr &attr, QWidget *parent = nullptr);
+        explicit CheckBox(QWidget *parent = nullptr);
+
+        explicit CheckBox(const QString &text, QWidget *parent = nullptr);
 
         void resizeEvent(QResizeEvent *event) override;
 
+        void updateAttr();
 
     protected slots:
 
         void onClicked();
 
-    private:
-        CheckBoxAttr attr;
+    signals:
 
+        void onChange(bool val);
+
+    private:
+        HWidget *textWidget_ = nullptr;
+        Text *text_ = nullptr;
+        RectCheck *rectCheck_ = nullptr;
+    private:
+        bool attrChecked = false;
+        bool attrDefaultChecked = false;
+        bool attrDisabled = false;
+        bool attrIndeterminate = false;
+        QString attrText;
+
+    public:
+
+        const QString &getAttrText() const;
+
+        void setAttrChecked(bool checked);
+
+        void setAttrDefaultChecked(bool defaultChecked);
+
+        void setAttrDisabled(bool disabled);
+
+        void setAttrIndeterminate(bool attrIndeterminate);
+
+        void setAttrText(const QString &attrText);
 
     };
 
     class CheckBoxGroup : public QWidget, public AWidget {
     Q_OBJECT
     public:
-        explicit CheckBoxGroup(const CheckBoxGroupAttr &attr, QWidget *parent = nullptr);
+        explicit CheckBoxGroup(const std::vector<GeneralAttrOption> &options, const std::vector<QString> &value, QWidget *parent = nullptr);
+
 
     private:
-        CheckBoxGroupAttr attr;
+        std::vector<GeneralAttrOption> attrOptions;
+        std::vector<QString> attrValue;
+    public:
+        void setAttrOptions(const std::vector<GeneralAttrOption> &attrOptions);
+
+        void setAttrValue(const std::vector<QString> &attrValue);
+
+    signals:
+
+        void onChange(const std::vector<QString> &attrValue);
     };
 
 
