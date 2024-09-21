@@ -3,11 +3,9 @@
 #include "VWidget.h"
 #include "Card.h"
 #include "Divider.h"
-#include "Text.h"
 #include "Input.h"
 #include "Tag.h"
 #include "QLineEdit"
-#include "WLQLineEdit.h"
 #include "Button.h"
 
 DemoFlexWidget::DemoFlexWidget(QWidget *parent) : DemoContentWidget(parent) {
@@ -29,17 +27,15 @@ DemoFlexWidget::DemoFlexWidget(QWidget *parent) : DemoContentWidget(parent) {
         auto *wi = new wl::VWidget();
         auto *card = new wl::Card();
         card->setContentWidget(wi);
-        this->layoutRight_->addWidget(card);
+        this->layoutLeft_->addWidget(card);
         auto *flex = new wl::Flex();
-        for (int index = 0; index < 1; index++) {
+        for (int index = 0; index < 15; index++) {
             auto *tag = new wl::Tag("中文TAG");
             tag->setMinimumHeight(28);
             flex->addWidget(tag);
         }
 
-        auto *input = new wl::WLQLineEdit();
-        flex->addWidget(input);
-        auto *btn = new wl::Button("Primary Button", this);
+        auto *btn = new wl::Button("添加TAG", this);
         btn->setAttrType(wl::ButtonAttrType::primary);
         btn->setAttrSize(wl::GeneralAttrSize::middle);
         btn->setAttrShape(wl::GeneralAttrShape::round);

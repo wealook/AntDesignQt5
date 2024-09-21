@@ -9,17 +9,37 @@ namespace wl {
     Text::Text(const QString &text, QWidget *parent) : HWidget(parent) {
         this->setMinimumWidth(10);
         label_ = new QLabel(text);
-        label_->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+        label_->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
+        this->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+        this->layout()->setAlignment(Qt::AlignLeft);
         this->addWidget(label_);
         auto theme = ThemeConfig::Instance();
         this->setStyleQss("font-family", theme.fontFamily);
-//        this->setStyleQss("border","1px solid blue");
+//        this->setStyleQss("border", "1px solid blue");
         this->setStyleSheet(this->getJoinStyles());
         this->updateAttr();
     }
 
-    void Text::setAttr(const TextAttr &textAttr) {
-        this->attr_ = textAttr;
+
+    void Text::mousePressEvent(QMouseEvent *event) {
+        wl::HWidget::mousePressEvent(event);
+        emit clicked();
+    }
+
+    void Text::paintEvent(QPaintEvent *event) {
+        HWidget::paintEvent(event);
+        this->updateAttr();
+    }
+
+    void Text::setText(const QString &text) {
+        this->label_->setText(text);
+    }
+
+    QString Text::getText() {
+        return this->label_->text();
+    }
+
+    void Text::updateAttr() {
         auto themeConfig = ThemeConfig::Instance();
 
         this->setStyleQss("border-radius", "none");
@@ -29,39 +49,40 @@ namespace wl {
 //        this->setStyleQss("text-align", "center");
 //         this->setStyleQss("height", "24px");
 
-        this->setStyleQss("font-size", std::to_string(attr_.fontSize) + "px");
-        if (this->attr_.type == GeneralAttrColorType::secondary) {
+        this->setStyleQss("font-size", std::to_string(attrFontSize) + "px");
+        this->setStyleQss("line-height", std::to_string(attrFontSize + 8) + "px");
+        if (this->attrType == GeneralAttrColorType::secondary) {
             this->setStyleQss("color", themeConfig.colorTextSecondary);
-        } else if (this->attr_.type == GeneralAttrColorType::success) {
+        } else if (this->attrType == GeneralAttrColorType::success) {
             this->setStyleQss("color", themeConfig.colorSuccessText);
-        } else if (this->attr_.type == GeneralAttrColorType::warning) {
+        } else if (this->attrType == GeneralAttrColorType::warning) {
             this->setStyleQss("color", themeConfig.colorWarningText);
-        } else if (this->attr_.type == GeneralAttrColorType::danger) {
+        } else if (this->attrType == GeneralAttrColorType::danger) {
             this->setStyleQss("color", themeConfig.colorErrorText);
         } else {
         }
-        if (this->attr_.mark) {
+        if (this->attrMark) {
             this->setStyleQss("background-color", themeConfig.colorBgTextMark);
         }
-        if (this->attr_.code) {
+        if (this->attrCode) {
             this->setStyleQss("background-color", themeConfig.colorBgTextCode);
         }
-        if (this->attr_.keyboard) {
+        if (this->attrKeyboard) {
             this->setStyleQss("background-color", themeConfig.colorBgTextKeyword);
         }
-        if (this->attr_.underline) {
+        if (this->attrUnderline) {
             this->setStyleQss("text-decoration", "underline");
         }
-        if (this->attr_.destroy) {
+        if (this->attrDestroy) {
             this->setStyleQss("text-decoration", "line-through");
         }
-        if (this->attr_.strong) {
+        if (this->attrStrong) {
             this->setStyleQss("font-weight", "600");
         }
-        if (this->attr_.italic) {
+        if (this->attrItalic) {
             this->setStyleQss("font-style", "italic");
         }
-        if (this->attr_.link) {
+        if (this->attrLink) {
         }
         label_->setStyleSheet(this->getJoinStyles());
         if (this->existStyleQss("!hover", "text-align")) {
@@ -75,29 +96,43 @@ namespace wl {
         }
     }
 
-    Text::Text(const QString &text, const TextAttr &textAttr, QWidget *parent) : Text(text, parent) {
-        this->setAttr(textAttr);
+    void Text::setAttrMark(bool mark) {
+        Text::attrMark = mark;
     }
 
-    void Text::mousePressEvent(QMouseEvent *event) {
-        wl::HWidget::mousePressEvent(event);
-        emit clicked();
+    void Text::setAttrCode(bool code) {
+        Text::attrCode = code;
     }
 
-    void Text::paintEvent(QPaintEvent *event) {
-        HWidget::paintEvent(event);
-        this->setAttr(this->attr_);
+    void Text::setAttrKeyboard(bool keyboard) {
+        Text::attrKeyboard = keyboard;
     }
 
-    void Text::setText(const QString &text) {
-        this->label_->setText(text);
+    void Text::setAttrUnderline(bool underline) {
+        Text::attrUnderline = underline;
     }
 
-    QString Text::getText() {
-        return this->label_->text();
+    void Text::setAttrDestroy(bool destroy) {
+        Text::attrDestroy = destroy;
     }
 
-    void Text::updateAttr() {
-        this->setAttr(this->attr_);;
+    void Text::setAttrStrong(bool strong) {
+        Text::attrStrong = strong;
+    }
+
+    void Text::setAttrItalic(bool italic) {
+        Text::attrItalic = italic;
+    }
+
+    void Text::setAttrLink(bool link) {
+        Text::attrLink = link;
+    }
+
+    void Text::setAttrFontSize(int fontSize) {
+        Text::attrFontSize = fontSize;
+    }
+
+    void Text::setAttrType(GeneralAttrColorType colorType) {
+        Text::attrType = colorType;
     }
 }

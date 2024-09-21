@@ -31,10 +31,7 @@ namespace wl {
         this->addWidget(iconDoubleLeft_);
         this->addWidget(iconLeft_);
         this->addWidget(new QSpacerItem(1, 1, QSizePolicy::Expanding, QSizePolicy::Minimum));
-        TextAttr textAttr;
-        textAttr.fontSize = 14;
         text_ = new Text("2024");
-        text_->setAttr(textAttr);
         this->addWidget(text_);
         this->addWidget(new QSpacerItem(1, 1, QSizePolicy::Expanding, QSizePolicy::Minimum));
 
